@@ -39,7 +39,7 @@ namespace FileIntegrityMonitoringProject
                 // Debugging purposes
                 Console.WriteLine("Intrusion detected!");
                 cf.Open();
-                intrusionPreventionSystem.LogIntrusion();
+                //intrusionPreventionSystem.LogIntrusion();
                 Console.WriteLine("Intrusion logged!");
             }
             catch (Exception e)

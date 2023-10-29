@@ -8,9 +8,13 @@ using System.Threading.Tasks;
 namespace Common
 {
     [ServiceContract]
-    public interface IIntrusionPreventionSystem
+    public interface IFileIntegrityService
     {
         [OperationContract]
-        void LogIntrusion();
+        [FaultContract(typeof(CustomException))]
+        bool ConfigChanged();
+        void LoadConfig(string path);
+        bool StartMonitoring();
+
     }
 }

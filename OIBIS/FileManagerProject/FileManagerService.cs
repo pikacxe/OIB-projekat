@@ -5,6 +5,7 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace FileManagerProject
 {
@@ -19,52 +20,34 @@ namespace FileManagerProject
             fileIntegrityService = cf.CreateChannel();
         }
 
-        public bool RequestRemoval(string fileName)
+        public void AddFile(IFile newFile)
         {
-            try
-            {
-                // Debugging purposes
-                DeleteFile("");
-                CalculateChecksum();
-                UpdateConfig();
-                // TODO update config file
-                cf.Open();
-                fileIntegrityService.ConfigChanged();
-                Console.WriteLine("Config updated!");
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
-            finally
-            {
-                cf.Close();
-            }
-            return true;
-        }
-        public void AddFile(string fileName)
-        {
-            Console.WriteLine("File added");
+            throw new NotImplementedException();
         }
 
-        public string CalculateChecksum()
+        public string CalculateChecksum(IFile file)
         {
-            return "Checksum calculated!";
+            throw new NotImplementedException();
         }
 
         public void DeleteFile(string fileName)
         {
-            Console.WriteLine("File deleted");
+            throw new NotImplementedException();
         }
 
-        public void UpdateConfig()
+        public bool RequestRemoval(string fileName)
         {
-            Console.WriteLine("Config updated!");
+            throw new NotImplementedException();
         }
 
-        public void UpdateFile(string fileName)
+        public void UpdateConfig(XDocument config)
         {
-            Console.WriteLine("File updated");
+            throw new NotImplementedException();
+        }
+
+        public void UpdateFile(IFile updatedFile)
+        {
+            throw new NotImplementedException();
         }
     }
 }

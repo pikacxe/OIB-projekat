@@ -33,6 +33,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -42,9 +43,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IFileIntegrityService.cs" />
-    <Compile Include="IFileManager.cs" />
-    <Compile Include="IIntrusionPreventionSystem.cs" />
+    <Compile Include="CompromiseLevel.cs" />
+    <Compile Include="CustomException.cs" />
+    <Compile Include="Impl\MonitoredFile.cs" />
+    <Compile Include="Interfaces\IClient.cs" />
+    <Compile Include="Interfaces\IFile.cs" />
+    <Compile Include="Interfaces\IFileIntegrityService.cs" />
+    <Compile Include="Interfaces\IFileManager.cs" />
+    <Compile Include="Interfaces\IIntrusionPreventionSystem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

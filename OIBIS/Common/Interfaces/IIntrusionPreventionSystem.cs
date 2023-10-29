@@ -8,12 +8,10 @@ using System.Threading.Tasks;
 namespace Common
 {
     [ServiceContract]
-    public interface IFileIntegrityService
+    public interface IIntrusionPreventionSystem
     {
         [OperationContract]
-        bool ConfigChanged();
-        void LoadConfig(string path);
-        bool StartMonitoring();
-
+        [FaultContract(typeof(CustomException))]
+        void LogIntrusion(DateTime timeStamp,string fileName,string location,CompromiseLevel compromiseLevel);
     }
 }

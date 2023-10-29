@@ -19,13 +19,13 @@ namespace IntrusionPreventionSystemProject
             fileManager = cf.CreateChannel();
         }
 
-        public void LogIntrusion()
+        public void LogIntrusion(DateTime timeStamp, string fileName, string location, CompromiseLevel compromiseLevel)
         {
             Console.WriteLine("Intrusion logged! Requesting file removal...");
             try
             {
                 cf.Open();
-                if (fileManager.RequestRemoval("test"))
+                if (fileManager.RequestRemoval(fileName))
                 {
                     Console.WriteLine("File removed successfully");
                 }
@@ -34,7 +34,7 @@ namespace IntrusionPreventionSystemProject
                     Console.WriteLine("File removal failed!");
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message.ToString());
             }
@@ -43,6 +43,5 @@ namespace IntrusionPreventionSystemProject
                 cf.Close();
             }
         }
-
     }
 }
