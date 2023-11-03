@@ -14,9 +14,10 @@ namespace FileManagerProject
         {
             using (ServiceHost host = new ServiceHost(typeof(FileManagerService)))
             {
+                FileManager fm = new FileManager();
                 host.Open();
                 Console.WriteLine("File manager service started. Press Esc to exit...");
-                while (Console.ReadKey(intercept: true).Key != ConsoleKey.Escape) ;
+                fm.Menu();
                 host.Close();
             }
         }
