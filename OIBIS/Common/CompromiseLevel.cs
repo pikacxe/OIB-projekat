@@ -10,8 +10,11 @@ namespace Common
     [DataContract]
     public enum CompromiseLevel
     {
-        Info = 0,
-        Warning = 1,
-        Critical = 2
+        [EnumMember]
+        Info = 1,
+        [EnumMember]
+        Warning = 2,
+        [EnumMember]
+        Critical = 3
     };
 }

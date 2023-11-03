@@ -12,9 +12,7 @@ namespace Common
     {
         [OperationContract]
         [FaultContract(typeof(CustomException))]
-        bool ConfigChanged();
-        void LoadConfig(string path);
-        bool StartMonitoring();
+        bool ConfigChanged(IFile file);
 
     }
 }
