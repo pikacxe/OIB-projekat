@@ -10,18 +10,14 @@ namespace FileManagerProject
 {
     internal class Program
     {
-        public static void Meni(object sender, EventArgs e)
-        {
-            Console.WriteLine("Test");
-        }
         static void Main(string[] args)
         {
             using (ServiceHost host = new ServiceHost(typeof(FileManagerService)))
             {
-                host.Opening += Meni;
+                FileManager fm = new FileManager();
                 host.Open();
                 Console.WriteLine("File manager service started. Press Esc to exit...");
-                while (Console.ReadKey(intercept: true).Key != ConsoleKey.Escape) ;
+                fm.Menu();
                 host.Close();
             }
         }
