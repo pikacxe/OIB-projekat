@@ -34,9 +34,10 @@ namespace FileIntegritiMonitoringProject
             //proveravanje njihovih hash vrednosti
             do
             {
-                XDocument config = XDocument.Load("config.xml");
+                XDocument config = XDocument.Load(configFile);
                 XElement files = config.Element("files");
 
+                Console.WriteLine("Started scan...");
                 foreach (XElement element in files.Elements())
                 {
                     string filename = element.Attribute("filename").Value;
@@ -52,13 +53,14 @@ namespace FileIntegritiMonitoringProject
                         Console.WriteLine(filename + " - " + counter);
                         Console.WriteLine("-----------------------------------------------------");
 
-                        intrusionPreventionSystem.LogIntrusion(DateTime.Now, filename, folderPath, (CompromiseLevel)counter);
+                        ips.LogIntrusion(DateTime.Now, filename, folderPath, (CompromiseLevel)counter);
                     }
                 }
+                Console.WriteLine("Scan finished...");
                 config.Save("config.xml");
 
                 Thread.Sleep(monitoringPeriod);
-            } while (cancelationToken);
+            } while (!cancelationToken);
         }
 
         public void StopMonitoring()
@@ -69,7 +71,7 @@ namespace FileIntegritiMonitoringProject
         //metoda za kreiranje pocetnog config fajla od predefinisanog
         //foldera sa fajlovima
         //debuging purposes
-        public void CreateConfig()
+        private void CreateConfig()
         {
             XDocument xmlDocument = new XDocument(new XElement("files"));
 
@@ -88,7 +90,7 @@ namespace FileIntegritiMonitoringProject
                 xmlDocument.Root.Add(fileElement);
             }
 
-            xmlDocument.Save("config.xml");
+            xmlDocument.Save(configFile);
         }
 
         //Funkcija za racunanje checksum koristeci SHA1

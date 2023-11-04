@@ -22,12 +22,9 @@ namespace FileIntegrityMonitoringProject
             {
                 Console.WriteLine("File integrity monitoring service started. Press Esc to exit...");
                 FileIntegrityMonitoring fim = new FileIntegrityMonitoring();
-                
-                fim.CreateConfig();
+                Task.Run(() => { while (Console.ReadKey(intercept: true).Key != ConsoleKey.Escape) ; fim.StopMonitoring(); });
                 fim.StartMonitoring();
-
                 host.Open();
-                while (Console.ReadKey(intercept: true).Key != ConsoleKey.Escape) ;
                 host.Close();
                 fim.StartMonitoring();
             }

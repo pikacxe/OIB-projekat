@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.ServiceModel;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -23,6 +24,10 @@ namespace FileManagerProject
         {
             cf = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
             fileIntegrityService = cf.CreateChannel();
+            if (!Directory.Exists(pathReader))
+            {
+                Directory.CreateDirectory(pathReader);
+            }
         }
 
         public void Menu()
@@ -57,14 +62,31 @@ namespace FileManagerProject
                 FileStream fs = File.Open(Path.Combine(pathReader, name), FileMode.CreateNew);
                 StreamWriter sw = new StreamWriter(fs);
                 sw.WriteLine("I am here...");
+                MonitoredFile file = new MonitoredFile();
+                fs.CopyTo(file.File);
+                file.Name = name;
+                file.Hash = CalculateChecksum(name);
                 sw.Close();
                 fs.Close();
-                fileIntegrityService.ConfigChanged();
+                fileIntegrityService.ConfigChanged(file);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
+        }
+
+        public string CalculateChecksum(string filePath)
+        {
+            byte[] checksum;
+            using (var stream = File.OpenRead(filePath))
+            {
+                SHA1 sha1 = new SHA1CryptoServiceProvider();
+                checksum = sha1.ComputeHash(stream);
+            }
+
+            //iz niza bajtova pretvaramo u string
+            return BitConverter.ToString(checksum).Replace("-", string.Empty);
         }
     }
 }

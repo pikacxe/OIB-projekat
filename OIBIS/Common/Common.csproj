@@ -46,7 +46,6 @@
     <Compile Include="CompromiseLevel.cs" />
     <Compile Include="CustomException.cs" />
     <Compile Include="Impl\MonitoredFile.cs" />
-    <Compile Include="Interfaces\IClient.cs" />
     <Compile Include="Interfaces\IFile.cs" />
     <Compile Include="Interfaces\IFileIntegrityService.cs" />
     <Compile Include="Interfaces\IFileManager.cs" />
