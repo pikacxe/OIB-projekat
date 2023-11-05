@@ -10,7 +10,7 @@ using System.Xml;
 namespace Common
 {
     [DataContract]
-    internal class MonitoredFile : IFile
+    public class MonitoredFile : IFile
     {
         private bool disposedValue;
         private MemoryStream file;
@@ -25,7 +25,10 @@ namespace Common
         public string Hash { get => hash; set => hash = value; }
 
 
-
+        public MonitoredFile()
+        {
+            file = new MemoryStream();
+        }
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)

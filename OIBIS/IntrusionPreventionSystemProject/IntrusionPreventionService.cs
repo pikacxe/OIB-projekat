@@ -1,6 +1,7 @@
 ﻿using Common;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.ServiceModel;
 using System.Text;
@@ -25,13 +26,16 @@ namespace IntrusionPreventionSystemProject
             try
             {
                 cf.Open();
-                if (fileManager.RequestRemoval(fileName))
-                {
-                    Console.WriteLine("File removed successfully");
-                }
-                else
-                {
-                    Console.WriteLine("File removal failed!");
+                if (compromiseLevel == CompromiseLevel.Critical)
+                { 
+                    if (fileManager.RequestRemoval(fileName))
+                    {
+                        Console.WriteLine("File removed successfully");
+                    }
+                    else
+                    {
+                        Console.WriteLine("File removal failed!");
+                    }
                 }
             }
             catch (Exception e)

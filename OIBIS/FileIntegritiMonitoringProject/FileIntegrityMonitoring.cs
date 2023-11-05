@@ -1,10 +1,13 @@
-﻿using Common;
+﻿using CertificationManager;
+using Common;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Principal;
 using System.ServiceModel;
 using System.Text;
 using System.Threading;
@@ -17,15 +20,40 @@ namespace FileIntegritiMonitoringProject
     {
         string folderPath = ConfigurationManager.AppSettings["MonitoredPath"];
         int monitoringPeriod = int.Parse(ConfigurationManager.AppSettings["MonitoringPeriod"]);
-        private ChannelFactory<IIntrusionPreventionSystem> cf;
-        private IIntrusionPreventionSystem intrusionPreventionSystem;
+        string srvCertCN = ConfigurationManager.AppSettings["srvCertCN"];
+        private IIntrusionPreventionSystem ips;
+        private ChannelFactory<IIntrusionPreventionSystem> channelFactory;
         private bool cancelationToken;
+        private string configFile = "config.xml";
 
         public FileIntegrityMonitoring()
         {
-            cancelationToken = true;
-            cf = new ChannelFactory<IIntrusionPreventionSystem>("IIntrusionPreventionSystem");
-            intrusionPreventionSystem = cf.CreateChannel();
+            cancelationToken = false;
+            // If config.xml does not exist, generate a default one
+            if (!File.Exists(configFile))
+            {
+                CreateConfig();
+            }
+
+            /// cltCertCN.SubjectName should be set to the client's username. .NET WindowsIdentity class provides information about Windows user running the given process
+			string cltCertCN = Formatter.ParseName(WindowsIdentity.GetCurrent().Name);
+
+            NetTcpBinding binding = new NetTcpBinding();
+            binding.Security.Transport.ClientCredentialType = TcpClientCredentialType.Certificate;
+
+            /// Use CertManager class to obtain the certificate based on the "srvCertCN" representing the expected service identity.
+            X509Certificate2 srvCert = CertManager.GetCertificateFromStorage(StoreName.TrustedPeople, StoreLocation.LocalMachine, srvCertCN);
+            EndpointAddress address = new EndpointAddress(new Uri("net.tcp://localhost:6002/IIntrusionPreventionSystem"),
+                                      new X509CertificateEndpointIdentity(srvCert));
+            channelFactory = new ChannelFactory<IIntrusionPreventionSystem>(binding,address);
+            channelFactory.Credentials.ServiceCertificate.Authentication.CertificateValidationMode = System.ServiceModel.Security.X509CertificateValidationMode.Custom;
+            channelFactory.Credentials.ServiceCertificate.Authentication.CustomCertificateValidator = new ClientCertValidator();
+            channelFactory.Credentials.ServiceCertificate.Authentication.RevocationMode = X509RevocationMode.NoCheck;
+
+            /// Set appropriate client's certificate on the channel. Use CertManager class to obtain the certificate based on the "cltCertCN"
+            channelFactory.Credentials.ClientCertificate.Certificate = CertManager.GetCertificateFromStorage(StoreName.My, StoreLocation.LocalMachine, cltCertCN);
+            ips = channelFactory.CreateChannel();
+
         }
 
         public void StartMonitoring()
@@ -34,9 +62,10 @@ namespace FileIntegritiMonitoringProject
             //proveravanje njihovih hash vrednosti
             do
             {
-                XDocument config = XDocument.Load("config.xml");
+                XDocument config = XDocument.Load(configFile);
                 XElement files = config.Element("files");
 
+                Console.WriteLine("Started scan...");
                 foreach (XElement element in files.Elements())
                 {
                     string filename = element.Attribute("filename").Value;
@@ -52,13 +81,14 @@ namespace FileIntegritiMonitoringProject
                         Console.WriteLine(filename + " - " + counter);
                         Console.WriteLine("-----------------------------------------------------");
 
-                        intrusionPreventionSystem.LogIntrusion(DateTime.Now, filename, folderPath, (CompromiseLevel)counter);
+                        ips.LogIntrusion(DateTime.Now, filename, folderPath, (CompromiseLevel)counter);
                     }
                 }
+                Console.WriteLine("Scan finished...");
                 config.Save("config.xml");
 
                 Thread.Sleep(monitoringPeriod);
-            } while (cancelationToken);
+            } while (!cancelationToken);
         }
 
         public void StopMonitoring()
@@ -69,7 +99,7 @@ namespace FileIntegritiMonitoringProject
         //metoda za kreiranje pocetnog config fajla od predefinisanog
         //foldera sa fajlovima
         //debuging purposes
-        public void CreateConfig()
+        private void CreateConfig()
         {
             XDocument xmlDocument = new XDocument(new XElement("files"));
 
@@ -88,7 +118,7 @@ namespace FileIntegritiMonitoringProject
                 xmlDocument.Root.Add(fileElement);
             }
 
-            xmlDocument.Save("config.xml");
+            xmlDocument.Save(configFile);
         }
 
         //Funkcija za racunanje checksum koristeci SHA1

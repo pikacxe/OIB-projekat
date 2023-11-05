@@ -14,9 +14,11 @@ namespace FileIntegrityMonitoringProject
 {
     public class FileIntegrityMonitoringService : IFileIntegrityService
     {
+        [OperationBehavior(AutoDisposeParameters = true)]
         public bool ConfigChanged(IFile file)
         {
             // TODO update config and reset monitoring
+            Console.WriteLine($"[RECEIVED] - {file.Name} with hash = {file.Hash}");
             return true;
         }
 
