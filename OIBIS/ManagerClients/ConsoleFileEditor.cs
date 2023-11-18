@@ -46,7 +46,7 @@ namespace ManagerClients
             Console.CursorVisible = true;
 
             int MaxRows = Console.BufferHeight-1;
-            int start = currentLine > MaxRows ? currentLine - MaxRows : 0;
+            int start = currentLine - cursorTop;
             int end = start + MaxRows;
             end = end > totalLines ? totalLines : end;
 
@@ -54,8 +54,6 @@ namespace ManagerClients
             {
                 Console.WriteLine(lines[i]);
             }
-            // Adjust cursorTop to be within the bounds of the console buffer
-            cursorTop = Math.Min(cursorTop, MaxRows);
             Console.SetCursorPosition(cursorLeft, cursorTop);
         }
 
@@ -74,7 +72,8 @@ namespace ManagerClients
                         if (currentLine > 0)
                         {
                             currentLine--;
-                            cursorTop--;
+                            if (cursorTop - 1 >= 0)
+                                cursorTop--;
                             cursorLeft = lines[currentLine].Length;
                         }
                         break;
@@ -84,7 +83,8 @@ namespace ManagerClients
                         {
                             currentLine++;
                             cursorLeft = lines[currentLine].Length;
-                            cursorTop++;
+                            if (cursorTop + 1 < Console.BufferHeight)
+                                cursorTop++;
                         }
                         break;
 
@@ -110,11 +110,16 @@ namespace ManagerClients
                         }
                         else
                         {
-                            lines.RemoveAt(currentLine);
-                            totalLines--;
-                            currentLine--;
-                            cursorLeft = lines[currentLine].Length;
-                            cursorTop--;
+                            if (lines.Count > 1)
+                            {
+                                lines.RemoveAt(currentLine);
+                                totalLines--;
+                                if (currentLine - 1 >= 0)
+                                    currentLine--;
+                                cursorLeft = lines[currentLine].Length;
+                                if (cursorTop - 1 >= 0)
+                                    cursorTop--;
+                            }
                         }
                         break;
 
@@ -125,7 +130,8 @@ namespace ManagerClients
                         lines.Insert(currentLine, newLine);
                         cursorLeft = 0;
                         totalLines++;
-                        cursorTop++;
+                        if (cursorTop + 1 < Console.BufferHeight)
+                            cursorTop++;
                         break;
 
                     default:

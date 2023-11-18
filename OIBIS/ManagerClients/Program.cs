@@ -20,7 +20,7 @@ namespace ManagerClients
             {
                 // Print username of a user who is running a service
                 Formatter.PrintCurrentUser();
-                Console.WriteLine("---------------------\nOptions:\n\tA - Add file\n\tU - update file\n\tQ - Quit process\n\nPick: ");
+                Console.Write("---------------------\nOptions:\n\tA - Add file\n\tU - update file\n\tQ - Quit process\n\nPick: ");
                 key = Console.ReadLine().ToUpper();
                 switch (key)
                 {
@@ -29,7 +29,6 @@ namespace ManagerClients
                     default: break;
                 }
             } while (key != "Q");
-            Console.ReadKey();
         }
 
         static void AddFile()
