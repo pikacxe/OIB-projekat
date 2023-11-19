@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,6 +34,13 @@ namespace CertificationManager
             {
                 return winLogonName;
             }
+        }
+
+        public static void PrintCurrentUser()
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"\nCurrently running as '{ParseName(WindowsIdentity.GetCurrent().Name)}'\n");
+            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 }

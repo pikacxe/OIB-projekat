@@ -1,15 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
 using System.ServiceModel;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
-using Common;
+using CertificationManager;
 using FileIntegritiMonitoringProject;
 
 namespace FileIntegrityMonitoringProject
@@ -18,6 +10,8 @@ namespace FileIntegrityMonitoringProject
     {
         static void Main(string[] args)
         {
+            // Print username of a user who is running a service
+            Formatter.PrintCurrentUser();
             using (ServiceHost host = new ServiceHost(typeof(FileIntegrityMonitoringService)))
             {
                 Console.WriteLine("File integrity monitoring service started. Press Esc to exit...");

@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileManagerProject", "FileM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CertificateManager", "CertManager\CertificateManager.csproj", "{1193E153-FD22-4020-AF4E-A8C8BE4073E0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagerClients", "ManagerClients\ManagerClients.csproj", "{1AD6A2A3-C541-4435-95D3-16DA9F78BFF2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{1193E153-FD22-4020-AF4E-A8C8BE4073E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1193E153-FD22-4020-AF4E-A8C8BE4073E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1193E153-FD22-4020-AF4E-A8C8BE4073E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1AD6A2A3-C541-4435-95D3-16DA9F78BFF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AD6A2A3-C541-4435-95D3-16DA9F78BFF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AD6A2A3-C541-4435-95D3-16DA9F78BFF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AD6A2A3-C541-4435-95D3-16DA9F78BFF2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

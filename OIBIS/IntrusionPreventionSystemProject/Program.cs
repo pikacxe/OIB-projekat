@@ -16,6 +16,9 @@ namespace IntrusionPreventionSystemProject
     {
         static void Main(string[] args)
         {
+            // Print username of a user who is running a service
+            Formatter.PrintCurrentUser();
+
             /// srvCertCN.SubjectName should be set to the service's username. .NET WindowsIdentity class provides information about Windows user running the given process
             string srvCertCN = Formatter.ParseName(WindowsIdentity.GetCurrent().Name);
 
