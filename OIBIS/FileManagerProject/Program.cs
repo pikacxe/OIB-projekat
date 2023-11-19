@@ -17,10 +17,8 @@ namespace FileManagerProject
             Formatter.PrintCurrentUser();
             using (ServiceHost host = new ServiceHost(typeof(FileManagerService)))
             {
-                FileManager fm = new FileManager();
                 host.Open();
                 Console.WriteLine("File manager service started. Press Esc to exit...");
-                fm.Menu();
                 host.Close();
             }
         }

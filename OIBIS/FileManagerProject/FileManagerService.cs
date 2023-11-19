@@ -5,6 +5,7 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.ServiceModel;
 using System.Text;
 using System.Threading;
@@ -13,24 +14,60 @@ using System.Xml.Linq;
 
 namespace FileManagerProject
 {
-    public class FileManagerService : IFileManager
+    public class FileManagerService : IFileManager, IClient
     {
-        string monitoredPath = ConfigurationManager.AppSettings["MonitoredPath"];
-        public bool RequestRemoval(string fileName)
+
+        private ChannelFactory<IFileIntegrityService> channel;
+        private IFileIntegrityService proxy;
+
+        public void AddFile(IFile file)
         {
-            string filePath = Path.Combine(monitoredPath, fileName);
-            // TODO check if file in use
-            FileInfo fi = new FileInfo(filePath);
-            while (IsFileLocked(fi)) ;
-            if (File.Exists(filePath))
+            file.Hash = CalculateChecksum(file);
+            try
             {
-                File.Delete(filePath);
-                // TODO notify Monitoring service about changes
-                return true;
+                channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
+                proxy = channel.CreateChannel();
+                proxy.ConfigChanged(file);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            finally
+            {
+                channel.Close();
+            }
+        }
+
+        public void ReadFiles()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string CalculateChecksum(IFile filePath)
+        {
+            byte[] checksum;
+            using (var stream = filePath.File)
+            {
+                SHA1 sha1 = new SHA1CryptoServiceProvider();
+                checksum = sha1.ComputeHash(stream);
             }
 
+            //iz niza bajtova pretvaramo u string
+            return BitConverter.ToString(checksum).Replace("-", string.Empty);
+        }
+
+        public bool RequestRemoval(string fileName)
+        {
+            //TODO 
             return false;
         }
+
+        public void UpdateFile(IFile file, string old_filename)
+        {
+            throw new NotImplementedException();
+        }
+
         protected virtual bool IsFileLocked(FileInfo file)
         {
             try
