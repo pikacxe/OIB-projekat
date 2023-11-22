@@ -11,8 +11,18 @@ namespace Common
     public interface IFileIntegrityService
     {
         [OperationContract]
-        [FaultContract(typeof(CustomException))]
-        bool ConfigChanged(IFile file);
+        void AddFile(IFile file);
 
+        [OperationContract]
+        void UpdateFile(IFile file);
+
+        [OperationContract]
+        void RemoveFile(string fileName);
+
+        [OperationContract]
+        IFile ReadFile(string fileName);
+
+        [OperationContract]
+        List<string> ReadFileNames();
     }
 }

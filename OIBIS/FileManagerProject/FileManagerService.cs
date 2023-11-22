@@ -16,7 +16,6 @@ namespace FileManagerProject
 {
     public class FileManagerService : IFileManager, IClient
     {
-
         private ChannelFactory<IFileIntegrityService> channel;
         private IFileIntegrityService proxy;
 
@@ -27,7 +26,6 @@ namespace FileManagerProject
             {
                 channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
                 proxy = channel.CreateChannel();
-                proxy.ConfigChanged(file);
             }
             catch(Exception e)
             {
