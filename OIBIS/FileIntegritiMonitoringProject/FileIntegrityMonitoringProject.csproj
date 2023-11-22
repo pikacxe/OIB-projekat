@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{DDE32CC5-A897-4A43-897C-2C6A9EFEC392}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>FileIntegritiMonitoringProject</RootNamespace>
-    <AssemblyName>FileIntegritiMonitoringProject</AssemblyName>
+    <RootNamespace>FileIntegrityMonitoringProject</RootNamespace>
+    <AssemblyName>FileIntegrityMonitoringProject</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigManager.cs" />
     <Compile Include="FileIntegrityMonitoring.cs" />
     <Compile Include="FileIntegrityMonitoringService.cs" />
     <Compile Include="Program.cs" />

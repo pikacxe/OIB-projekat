@@ -2,7 +2,6 @@
 using System.ServiceModel;
 using System.Threading.Tasks;
 using CertificationManager;
-using FileIntegritiMonitoringProject;
 
 namespace FileIntegrityMonitoringProject
 {
