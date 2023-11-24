@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Management.Instrumentation;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
+using System.Security.Permissions;
 using System.ServiceModel;
 using System.ServiceModel.Configuration;
 using System.Text;
@@ -20,6 +22,7 @@ namespace FileManagerProject
         private ChannelFactory<IFileIntegrityService> channel;
         private IFileIntegrityService proxy;
 
+        [PrincipalPermission(SecurityAction.Demand, Role = "Management")]
         public void AddFile(IFile file)
         {
             file.Hash = CalculateChecksum(file);
@@ -72,6 +75,7 @@ namespace FileManagerProject
             return BitConverter.ToString(checksum).Replace("-", string.Empty);
         }
 
+        [PrincipalPermission(SecurityAction.Demand, Role = "Administration")]
         public bool RequestRemoval(string fileName)
         {
             try
