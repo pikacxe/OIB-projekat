@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.ServiceModel;
+using System.ServiceModel.Configuration;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +27,7 @@ namespace FileManagerProject
             {
                 channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
                 proxy = channel.CreateChannel();
+                proxy.AddFile(file);
             }
             catch(Exception e)
             {
@@ -37,9 +39,24 @@ namespace FileManagerProject
             }
         }
 
-        public void ReadFiles()
+        public List<string> ReadFiles()
         {
-            throw new NotImplementedException();
+            try
+            {
+                channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
+                proxy = channel.CreateChannel();
+                return proxy.ReadFileNames();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            finally
+            {
+                channel.Close();
+            }
+
+            return Enumerable.Empty<string>().ToList();
         }
 
         public string CalculateChecksum(IFile filePath)
@@ -57,35 +74,41 @@ namespace FileManagerProject
 
         public bool RequestRemoval(string fileName)
         {
-            //TODO 
+            try
+            {
+                channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
+                proxy = channel.CreateChannel();
+                proxy.RemoveFile(fileName);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            finally
+            {
+                channel.Close();
+            }
+
             return false;
         }
 
         public void UpdateFile(IFile file, string old_filename)
         {
-            throw new NotImplementedException();
-        }
-
-        protected virtual bool IsFileLocked(FileInfo file)
-        {
             try
             {
-                using (FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None))
-                {
-                    stream.Close();
-                }
+                channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
+                proxy = channel.CreateChannel();
+                proxy.UpdateFile(file);
             }
-            catch (IOException)
+            catch (Exception e)
             {
-                //the file is unavailable because it is:
-                //still being written to
-                //or being processed by another thread
-                //or does not exist (has already been processed)
-                return true;
+                Console.WriteLine(e.Message);
             }
-
-            //file is not locked
-            return false;
+            finally
+            {
+                channel.Close();
+            }
         }
     }
 }
