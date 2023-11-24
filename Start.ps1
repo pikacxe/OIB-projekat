@@ -1,5 +1,5 @@
 # Define the paths to the exe files
-$fim_exe = "OIBIS\FileIntegritiMonitoringProject\bin\Debug\FileIntegritiMonitoringProject.exe"
+$fim_exe = "OIBIS\FileIntegritiMonitoringProject\bin\Debug\FileIntegrityMonitoringProject.exe"
 $ips_exe = "OIBIS\IntrusionPreventionSystemProject\bin\Debug\IntrusionPreventionSystemProject.exe"
 $fm_exe = "OIBIS\FileManagerProject\bin\Debug\FileManagerProject.exe"
 

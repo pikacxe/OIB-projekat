@@ -15,6 +15,6 @@ namespace Common
         [OperationContract]
         void UpdateFile(IFile file, string old_filename);
         [OperationContract]
-        void ReadFiles();
+        List<string> ReadFiles();
     }
 }
