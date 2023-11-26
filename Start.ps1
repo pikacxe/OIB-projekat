@@ -2,6 +2,7 @@
 $fim_exe = "OIBIS\FileIntegritiMonitoringProject\bin\Debug\FileIntegrityMonitoringProject.exe"
 $ips_exe = "OIBIS\IntrusionPreventionSystemProject\bin\Debug\IntrusionPreventionSystemProject.exe"
 $fm_exe = "OIBIS\FileManagerProject\bin\Debug\FileManagerProject.exe"
+$client_exe = "OIBIS\ManagerClients\bin\Debug\ManagerClients.exe"
 
 
 Write-Host "Starting up service, please wait...." -F Yellow
@@ -20,6 +21,9 @@ function Run-ExeAsUser($exePath) {
     Start-Process -FilePath $exeFile -WorkingDirectory $exeDir -Verb RunAsUser 
     Write-Host "$exeFile service started!" -F DarkGreen
 }
+
+# Run Client
+Run-ExeAsUser $client_exe
 
 #Run FM service
 Run-ExeAsUser $fm_exe

@@ -1,20 +1,19 @@
 ﻿using CertificationManager;
+using Common;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.ServiceModel;
 
 namespace ManagerClients
 {
     internal class Program
     {
+        private static ChannelFactory<IClient> cf;
+        private static IClient proxy;
         static void Main(string[] args)
         {
-
+            cf = new ChannelFactory<IClient>("Client");
+            proxy = cf.CreateChannel();
             string key = string.Empty;
             do
             {
@@ -29,37 +28,60 @@ namespace ManagerClients
                     default: break;
                 }
             } while (key != "Q");
+            if(cf != null)
+            {
+                cf.Close();
+            }
         }
 
         static void AddFile()
         {
-            Console.Write("Enter file name: ");
-            string filename = Console.ReadLine();
-            ConsoleFileEditor editor = new ConsoleFileEditor();
-            editor.Edit();
-            editor.SaveToFile(filename);
-            Console.WriteLine($"{filename} created successfully...");
+            try
+            {
+                Console.Write("Enter file name: ");
+                string filename = Console.ReadLine();
+                ConsoleFileEditor editor = new ConsoleFileEditor();
+                editor.Edit();
+                IFile file = editor.SaveToFile(filename);
+                Console.WriteLine($"{filename} created successfully...");
+                proxy.AddFile(file);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
 
         static void UpdateFile()
         {
-            DirectoryInfo di = new DirectoryInfo(".");
-            Console.WriteLine("\n----  Available files  ----\n");
-            foreach (FileInfo fi in di.GetFiles())
+            try
             {
-                Console.WriteLine($"  -\t{fi.Name}\n");
+                Console.WriteLine("--------------- Available files ---------------");
+                List<string> fileNames = proxy.ReadFiles();
+                foreach (var x in fileNames)
+                {
+                    Console.WriteLine($"- {x}");
+                }
+                string filename = string.Empty;
+                do
+                {
+                    Console.Write("\nSelect file: ");
+                    filename = Console.ReadLine();
+                } while (!fileNames.Contains(filename));
+                // TODO Update method to accept IFile instead
+                Console.WriteLine("Not implemented fully");
+                return;
+                /*
+                ConsoleFileEditor editor = new ConsoleFileEditor(File.ReadAllLines(filename));
+                editor.Edit();
+                editor.SaveToFile(filename);
+                Console.WriteLine($"{filename} updated successfully...");
+                */
             }
-            string filename = string.Empty;
-            do
+            catch (Exception e)
             {
-                Console.Write("\nSelect file: ");
-                filename = Console.ReadLine();
-            } while (!File.Exists(filename));
-
-            ConsoleFileEditor editor = new ConsoleFileEditor(File.ReadAllLines(filename));
-            editor.Edit();
-            editor.SaveToFile(filename);
-            Console.WriteLine($"{filename} updated successfully...");
+                Console.WriteLine(e.Message);
+            }
         }
     }
 }

@@ -1,19 +1,10 @@
 ﻿using Common;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
 using System.Linq;
-using System.Management.Instrumentation;
-using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Security.Permissions;
 using System.ServiceModel;
-using System.ServiceModel.Configuration;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace FileManagerProject
 {
@@ -22,12 +13,13 @@ namespace FileManagerProject
         private ChannelFactory<IFileIntegrityService> channel;
         private IFileIntegrityService proxy;
 
-        [PrincipalPermission(SecurityAction.Demand, Role = "Management")]
+        [PrincipalPermission(SecurityAction.Demand, Role = "OIBIS_Management")]
+        [ServiceKnownType(typeof(MonitoredFile))]
         public void AddFile(IFile file)
         {
-            file.Hash = CalculateChecksum(file);
             try
             {
+                file.Hash = CalculateChecksum(file);
                 channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
                 proxy = channel.CreateChannel();
                 proxy.AddFile(file);
@@ -40,6 +32,25 @@ namespace FileManagerProject
             {
                 channel.Close();
             }
+        }
+
+        public IFile ReadFile(string fileName)
+        {
+            try
+            {
+                channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
+                proxy = channel.CreateChannel();
+                return proxy.ReadFile(fileName);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            finally
+            {
+                channel.Close();
+            }
+            return new MonitoredFile();
         }
 
         public List<string> ReadFiles()
@@ -75,7 +86,7 @@ namespace FileManagerProject
             return BitConverter.ToString(checksum).Replace("-", string.Empty);
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = "Administration")]
+        [PrincipalPermission(SecurityAction.Demand, Role = "OIBIS_Administration")]
         public bool RequestRemoval(string fileName)
         {
             try
@@ -96,7 +107,7 @@ namespace FileManagerProject
 
             return false;
         }
-
+        [OperationBehavior(AutoDisposeParameters = true)]
         public void UpdateFile(IFile file, string old_filename)
         {
             try
