@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
 
 namespace Common
 {
@@ -17,11 +12,11 @@ namespace Common
         private string name;
         private string hash;
 
-        [DataMember(IsRequired =true)]
+        [DataMember]
         public MemoryStream File { get => file; set => file = value ; }
-        [DataMember(IsRequired =true)]
+        [DataMember]
         public string Name { get => name ; set => name= value; }
-        [DataMember(IsRequired =true)]
+        [DataMember]
         public string Hash { get => hash; set => hash = value; }
 
 

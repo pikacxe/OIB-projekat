@@ -1,12 +1,9 @@
-﻿using System;
+﻿using Common;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace ManagerClients
 {
@@ -45,7 +42,7 @@ namespace ManagerClients
             Console.Clear();
             Console.CursorVisible = true;
 
-            int MaxRows = Console.BufferHeight-1;
+            int MaxRows = Console.BufferHeight - 1;
             int start = currentLine - cursorTop;
             int end = start + MaxRows;
             end = end > totalLines ? totalLines : end;
@@ -145,13 +142,22 @@ namespace ManagerClients
             Console.Clear();
         }
 
-        public void SaveToFile(string fileName)
+        public IFile SaveToFile(string fileName)
         {
             if (!r.IsMatch(fileName))
             {
                 fileName += ".txt";
             }
-            File.WriteAllLines(fileName, lines);
+            MonitoredFile mf = new MonitoredFile();
+            mf.Name = fileName;
+            mf.Hash = string.Empty;
+            StreamWriter sw = new StreamWriter(mf.File);
+            sw.AutoFlush = true;
+            foreach (var x in lines)
+            {
+                sw.Write(x.ToString());
+            }
+            return mf;
         }
     }
 }

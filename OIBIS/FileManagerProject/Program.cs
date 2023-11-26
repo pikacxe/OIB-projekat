@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
 using CertificationManager;
-using Common;
 
 namespace FileManagerProject
 {
@@ -19,6 +14,7 @@ namespace FileManagerProject
             {
                 host.Open();
                 Console.WriteLine("File manager service started. Press Esc to exit...");
+                while (Console.ReadKey().Key != ConsoleKey.Escape);
                 host.Close();
             }
         }

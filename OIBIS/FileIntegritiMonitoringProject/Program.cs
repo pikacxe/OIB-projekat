@@ -14,12 +14,11 @@ namespace FileIntegrityMonitoringProject
             using (ServiceHost host = new ServiceHost(typeof(FileIntegrityMonitoringService)))
             {
                 Console.WriteLine("File integrity monitoring service started. Press Esc to exit...");
+                host.Open();
                 FileIntegrityMonitoring fim = new FileIntegrityMonitoring();
                 Task.Run(() => { while (Console.ReadKey(intercept: true).Key != ConsoleKey.Escape) ; fim.StopMonitoring(); });
                 fim.StartMonitoring();
-                host.Open();
                 host.Close();
-                fim.StartMonitoring();
             }
         }
     }
