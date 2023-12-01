@@ -47,13 +47,24 @@ namespace FileIntegrityMonitoringProject
             //sve fajlove pakujemo u xml config fajl
             foreach (string filePath in Directory.GetFiles("MonitoredFiles"))
             {
-                string fileName = Path.GetFileName(filePath);
-                string checksum = CalculateChecksum(fileName);
+                string filename = Path.GetFileName(filePath);
+
+                //digitalni potpis fajla
+                //string checksum = "";
+                //using (FileStream stream = File.OpenRead(Path.Combine(folderPath, filename)))
+                //{ 
+                    //string signCertCN = Formatter.ParseName(WindowsIdentity.GetCurrent().Name) + "_sign";
+                    //X509Certificate2 certificateSign = CertManager.GetCertificateFromStorage(StoreName.My,
+                    //StoreLocation.LocalMachine, signCertCN);
+                    //checksum = DigitalSignature.Create(stream, certificateSign).ToString();
+                //}
+
+                string checksum = CalculateChecksum(filename);
 
                 //za svaki fajl pamtimo ime, hash i broj
                 //neovlascenih izmena
                 XElement fileElement = new XElement("file",
-                    new XAttribute("filename", fileName),
+                    new XAttribute("filename", filename),
                     new XAttribute("hash", checksum),
                     new XAttribute("counter", 0));
                 xmlDocument.Root.Add(fileElement);
