@@ -14,7 +14,7 @@ namespace ManagerClients
         private int cursorLeft;
         private int currentLine;
         private int totalLines;
-        Regex r = new Regex(@"[a-zA-Z0-9]\.[a-zA-Z]+$");
+        Regex r = new Regex(@".+\.[a-zA-Z]+$");
 
         public ConsoleFileEditor()
         {

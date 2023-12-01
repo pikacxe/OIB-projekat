@@ -8,6 +8,6 @@ namespace Common
     {
         [OperationContract]
         [FaultContract(typeof(CustomException))]
-        void LogIntrusion(DateTime timeStamp,string fileName,string location,CompromiseLevel compromiseLevel);
+        void LogIntrusion(Intrusion intrusion);
     }
 }

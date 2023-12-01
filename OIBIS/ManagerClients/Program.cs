@@ -2,7 +2,9 @@
 using Common;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.ServiceModel;
+using System.Text;
 
 namespace ManagerClients
 {
@@ -68,15 +70,16 @@ namespace ManagerClients
                     Console.Write("\nSelect file: ");
                     filename = Console.ReadLine();
                 } while (!fileNames.Contains(filename));
-                // TODO Update method to accept IFile instead
+
                 Console.WriteLine("Not implemented fully");
-                return;
-                /*
-                ConsoleFileEditor editor = new ConsoleFileEditor(File.ReadAllLines(filename));
+                IFile f = proxy.ReadFile(filename);
+                byte[] data = f.File.ToArray();
+                ConsoleFileEditor editor = new ConsoleFileEditor(Encoding.ASCII.GetString(data).Split('\n'));
                 editor.Edit();
-                editor.SaveToFile(filename);
+                f = editor.SaveToFile(f.Name);
+                proxy.UpdateFile(f, "");
                 Console.WriteLine($"{filename} updated successfully...");
-                */
+                
             }
             catch (Exception e)
             {

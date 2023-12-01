@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
+using System.Text;
 using System.Xml.Linq;
 
 namespace FileIntegrityMonitoringProject
@@ -53,13 +54,13 @@ namespace FileIntegrityMonitoringProject
                 string filename = Path.GetFileName(filePath);
 
                 string hash = "";
-                using (FileStream stream = File.OpenRead(Path.Combine(folderPath, filename)))
-                {
-                    string signCertCN = "FIMCert";
-                    X509Certificate2 certificateSign = CertManager.GetCertificateFromStorage(StoreName.My,
-                    StoreLocation.LocalMachine, signCertCN);
-                    hash = DigitalSignature.Create(stream, certificateSign).ToString();
-                }
+                byte[] data = File.ReadAllBytes(Path.Combine(folderPath, filename));
+
+                string signCertCN = "FIMCert";
+                X509Certificate2 certificateSign = CertManager.GetCertificateFromStorage(StoreName.My,
+                StoreLocation.LocalMachine, signCertCN);
+                hash = Convert.ToBase64String(DigitalSignature.Create(data, certificateSign));
+
 
                 //za svaki fajl pamtimo ime, hash i broj
                 //neovlascenih izmena
