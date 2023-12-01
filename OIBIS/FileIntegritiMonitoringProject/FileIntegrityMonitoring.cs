@@ -2,10 +2,12 @@
 using Common;
 using System;
 using System.Configuration;
+using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Policy;
 using System.Security.Principal;
 using System.ServiceModel;
+using System.Text;
 using System.Threading;
 using System.Xml.Linq;
 
@@ -16,9 +18,11 @@ namespace FileIntegrityMonitoringProject
         string folderPath = ConfigurationManager.AppSettings["MonitoredPath"];
         int monitoringPeriod = int.Parse(ConfigurationManager.AppSettings["MonitoringPeriod"]);
         string srvCertCN = ConfigurationManager.AppSettings["srvCertCN"];
+        string signCertCN = ConfigurationManager.AppSettings["signCertCN"];
         private IIntrusionPreventionSystem ips;
         private ChannelFactory<IIntrusionPreventionSystem> channelFactory;
         private bool cancelationToken;
+        private X509Certificate2 certificateSign;
 
         public FileIntegrityMonitoring()
         {
@@ -26,6 +30,8 @@ namespace FileIntegrityMonitoringProject
 
             /// cltCertCN.SubjectName should be set to the client's username. .NET WindowsIdentity class provides information about Windows user running the given process
 			string cltCertCN = Formatter.ParseName(WindowsIdentity.GetCurrent().Name);
+
+            certificateSign = CertManager.GetCertificateFromStorage(StoreName.My, StoreLocation.LocalMachine, signCertCN);
 
             NetTcpBinding binding = new NetTcpBinding();
             binding.Security.Transport.ClientCredentialType = TcpClientCredentialType.Certificate;
@@ -54,7 +60,7 @@ namespace FileIntegrityMonitoringProject
                 foreach (XElement element in ConfigManager.GetInstance().GetFiles)
                 {
                     string filename = element.Attribute("filename").Value;
-                    //validacija pomocu digital signature
+
                     using (FileStream stream = File.OpenRead(Path.Combine(folderPath, filename)))
                     {
                         UnicodeEncoding encoding = new UnicodeEncoding();
@@ -63,7 +69,10 @@ namespace FileIntegrityMonitoringProject
                             int counter = int.Parse(element.Attribute("counter").Value);
                             counter++;
                             element.Attribute("counter").Value = counter.ToString();
-                            //element.Attribute("hash").Value = hash;
+
+                            string hash = DigitalSignature.Create(stream, certificateSign).ToString();
+                            
+                            element.Attribute("hash").Value = hash;
 
                             Console.WriteLine("\n-----------------------------------------------------");
                             Console.WriteLine(filename + " - " + counter);
@@ -72,21 +81,6 @@ namespace FileIntegrityMonitoringProject
                             ips.LogIntrusion(DateTime.Now, filename, folderPath, (CompromiseLevel)counter);
                         }
                     }
-
-                    //string hash = ConfigManager.GetInstance().CalculateChecksum(filename);
-                    //if (hash != element.Attribute("hash").Value)
-                    //{
-                    //    int counter = int.Parse(element.Attribute("counter").Value);
-                    //    counter++;
-                    //    element.Attribute("counter").Value = counter.ToString();
-                    //    element.Attribute("hash").Value = hash;
-
-                    //    Console.WriteLine("\n-----------------------------------------------------");
-                    //    Console.WriteLine(filename + " - " + counter);
-                    //    Console.WriteLine("-----------------------------------------------------");
-
-                    //    ips.LogIntrusion(DateTime.Now, filename, folderPath, (CompromiseLevel)counter);
-                    //}
                 }
                 ConfigManager.GetInstance().Save();
                 Console.WriteLine("Scan finished...");

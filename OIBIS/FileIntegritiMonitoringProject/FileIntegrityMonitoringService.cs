@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Runtime.InteropServices.ComTypes;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Policy;
 using System.ServiceModel;
+using CertificationManager;
 using Common;
 
 namespace FileIntegrityMonitoringProject
@@ -24,8 +28,13 @@ namespace FileIntegrityMonitoringProject
                 {
                     file.File.WriteTo(fs);
                     Console.WriteLine("File added");
-                    string checksum = ConfigManager.GetInstance().CalculateChecksum(file.Name);
-                    ConfigManager.GetInstance().AddEntry(file.Name, checksum);
+
+                    string signCertCN = "FIMCert";
+                    X509Certificate2 certificateSign = CertManager.GetCertificateFromStorage(StoreName.My,
+                    StoreLocation.LocalMachine, signCertCN);
+                    string hash = DigitalSignature.Create(fs, certificateSign).ToString();
+              
+                    ConfigManager.GetInstance().AddEntry(file.Name, hash);
                 }
             }
         }
@@ -39,8 +48,13 @@ namespace FileIntegrityMonitoringProject
                 using(FileStream fs = File.OpenWrite(path))
                 {
                     file.File.CopyTo(fs);
-                    string checksum = ConfigManager.GetInstance().CalculateChecksum(file.Name);
-                    ConfigManager.GetInstance().UpdateEntry(file.Name, checksum);
+
+                    string signCertCN = "FIMCert";
+                    X509Certificate2 certificateSign = CertManager.GetCertificateFromStorage(StoreName.My,
+                    StoreLocation.LocalMachine, signCertCN);
+                    string hash = DigitalSignature.Create(fs, certificateSign).ToString();
+
+                    ConfigManager.GetInstance().UpdateEntry(file.Name, hash);
                     Console.WriteLine("File updated");
                 }
             }
