@@ -1,9 +1,12 @@
-﻿using System;
+﻿using CertificationManager;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Principal;
 using System.Xml.Linq;
 
 namespace FileIntegrityMonitoringProject
@@ -47,14 +50,22 @@ namespace FileIntegrityMonitoringProject
             //sve fajlove pakujemo u xml config fajl
             foreach (string filePath in Directory.GetFiles("MonitoredFiles"))
             {
-                string fileName = Path.GetFileName(filePath);
-                string checksum = CalculateChecksum(fileName);
+                string filename = Path.GetFileName(filePath);
+
+                string hash = "";
+                using (FileStream stream = File.OpenRead(Path.Combine(folderPath, filename)))
+                {
+                    string signCertCN = "FIMCert";
+                    X509Certificate2 certificateSign = CertManager.GetCertificateFromStorage(StoreName.My,
+                    StoreLocation.LocalMachine, signCertCN);
+                    hash = DigitalSignature.Create(stream, certificateSign).ToString();
+                }
 
                 //za svaki fajl pamtimo ime, hash i broj
                 //neovlascenih izmena
                 XElement fileElement = new XElement("file",
-                    new XAttribute("filename", fileName),
-                    new XAttribute("hash", checksum),
+                    new XAttribute("filename", filename),
+                    new XAttribute("hash", hash),
                     new XAttribute("counter", 0));
                 xmlDocument.Root.Add(fileElement);
             }
