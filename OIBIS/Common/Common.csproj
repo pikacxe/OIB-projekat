@@ -51,6 +51,7 @@
     <Compile Include="Interfaces\IFileIntegrityService.cs" />
     <Compile Include="Interfaces\IFileManager.cs" />
     <Compile Include="Interfaces\IIntrusionPreventionSystem.cs" />
+    <Compile Include="Intrusion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

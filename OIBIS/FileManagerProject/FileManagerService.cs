@@ -19,7 +19,6 @@ namespace FileManagerProject
         {
             try
             {
-                file.Hash = CalculateChecksum(file);
                 channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
                 proxy = channel.CreateChannel();
                 proxy.AddFile(file);
@@ -73,20 +72,7 @@ namespace FileManagerProject
             return Enumerable.Empty<string>().ToList();
         }
 
-        public string CalculateChecksum(IFile filePath)
-        {
-            byte[] checksum;
-            using (var stream = filePath.File)
-            {
-                SHA1 sha1 = new SHA1CryptoServiceProvider();
-                checksum = sha1.ComputeHash(stream);
-            }
-
-            //iz niza bajtova pretvaramo u string
-            return BitConverter.ToString(checksum).Replace("-", string.Empty);
-        }
-
-        [PrincipalPermission(SecurityAction.Demand, Role = "OIBIS_Administration")]
+        [PrincipalPermission(SecurityAction.Demand, Role = "OIBIS_Administrator")]
         public bool RequestRemoval(string fileName)
         {
             try

@@ -32,8 +32,8 @@ namespace FileIntegrityMonitoringProject
                     string signCertCN = "FIMCert";
                     X509Certificate2 certificateSign = CertManager.GetCertificateFromStorage(StoreName.My,
                     StoreLocation.LocalMachine, signCertCN);
-                    string hash = DigitalSignature.Create(fs, certificateSign).ToString();
-              
+                    string hash = Convert.ToBase64String(DigitalSignature.Create(file.File.ToArray(), certificateSign));
+                    Console.WriteLine(hash);
                     ConfigManager.GetInstance().AddEntry(file.Name, hash);
                 }
             }
@@ -45,22 +45,20 @@ namespace FileIntegrityMonitoringProject
             string path = Path.Combine(monitoredPath, file.Name);
             if (File.Exists(path))
             {
-                using(FileStream fs = File.OpenWrite(path))
-                {
-                    file.File.CopyTo(fs);
+                File.WriteAllBytes(path,file.File.ToArray());
+                string signCertCN = "FIMCert";
+                X509Certificate2 certificateSign = CertManager.GetCertificateFromStorage(StoreName.My,
+                StoreLocation.LocalMachine, signCertCN);
+                string hash = Convert.ToBase64String(DigitalSignature.Create(file.File.ToArray(), certificateSign));
 
-                    string signCertCN = "FIMCert";
-                    X509Certificate2 certificateSign = CertManager.GetCertificateFromStorage(StoreName.My,
-                    StoreLocation.LocalMachine, signCertCN);
-                    string hash = DigitalSignature.Create(fs, certificateSign).ToString();
+                ConfigManager.GetInstance().UpdateEntry(file.Name, hash);
+                ConfigManager.GetInstance().Save();
+                Console.WriteLine("File updated");
 
-                    ConfigManager.GetInstance().UpdateEntry(file.Name, hash);
-                    Console.WriteLine("File updated");
-                }
             }
             else
             {
-                Console.WriteLine("Fajl ne postoji");
+                Console.WriteLine($"Fajl {file.Name} ne postoji");
             }
         }
         public void RemoveFile(string fileName)
@@ -82,13 +80,13 @@ namespace FileIntegrityMonitoringProject
         {
             string path = Path.Combine(monitoredPath, fileName);
             MonitoredFile mf = new MonitoredFile();
-            
+
             if (File.Exists(path))
             {
                 mf.Name = fileName;
                 mf.Hash = String.Empty;
 
-                using(FileStream fs = File.Open(path, FileMode.Open, FileAccess.Read))
+                using (FileStream fs = File.Open(path, FileMode.Open, FileAccess.Read))
                 {
                     fs.CopyTo(mf.File);
                 }
@@ -111,7 +109,7 @@ namespace FileIntegrityMonitoringProject
             {
                 fileNames.Add(fi.Name);
             }
-            
+
             return fileNames;
         }
     }

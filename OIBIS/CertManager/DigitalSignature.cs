@@ -13,7 +13,7 @@ namespace CertificationManager
     public class DigitalSignature
     {
         //create digital signature
-        public static byte[] Create(Stream file, X509Certificate2 certificate)
+        public static byte[] Create(byte[] data, X509Certificate2 certificate)
         {
             /// Looks for the certificate's private key to sign a message
             RSACryptoServiceProvider csp = (RSACryptoServiceProvider)certificate.PrivateKey;
@@ -25,25 +25,26 @@ namespace CertificationManager
 
             byte[] hash = null;
 
-            SHA256Managed sha256 = new SHA256Managed();
-            hash = sha256.ComputeHash(file);
+            SHA1Managed sha256 = new SHA1Managed();
+            hash = sha256.ComputeHash(data);
+            
 
-            byte[] signature = csp.SignHash(hash, CryptoConfig.MapNameToOID("SHA256"));
+            byte[] signature = csp.SignHash(hash, HashAlgorithmName.SHA1.ToString());
             return signature;
         }
 
 
-        public static bool Verify(Stream file, byte[] signature, X509Certificate2 certificate)
+        public static bool Verify(byte[] data, byte[] signature, X509Certificate2 certificate)
         {
             /// Looks for the certificate's public key to verify a message
             RSACryptoServiceProvider csp = (RSACryptoServiceProvider)certificate.PublicKey.Key;
 
             byte[] hash = null;
 
-            SHA256Managed sha256 = new SHA256Managed();
-            hash = sha256.ComputeHash(file);
+            SHA1Managed sha256 = new SHA1Managed();
+            hash = sha256.ComputeHash(data);
 
-            return csp.VerifyHash(hash, CryptoConfig.MapNameToOID("SHA256"), signature);
+            return csp.VerifyHash(hash, HashAlgorithmName.SHA1.ToString(), signature);
         }
     }
 }

@@ -13,6 +13,10 @@ namespace Common
 
         [OperationContract]
         [FaultContract(typeof(CustomException))]
+        IFile ReadFile(string fileName);
+
+        [OperationContract]
+        [FaultContract(typeof(CustomException))]
         void UpdateFile(IFile file, string old_filename);
 
         [OperationContract]

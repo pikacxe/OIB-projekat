@@ -40,7 +40,7 @@ namespace FileIntegrityMonitoringProject
             X509Certificate2 srvCert = CertManager.GetCertificateFromStorage(StoreName.TrustedPeople, StoreLocation.LocalMachine, srvCertCN);
             EndpointAddress address = new EndpointAddress(new Uri("net.tcp://localhost:6002/IIntrusionPreventionSystem"),
                                       new X509CertificateEndpointIdentity(srvCert));
-            channelFactory = new ChannelFactory<IIntrusionPreventionSystem>(binding,address);
+            channelFactory = new ChannelFactory<IIntrusionPreventionSystem>(binding, address);
             channelFactory.Credentials.ServiceCertificate.Authentication.CertificateValidationMode = System.ServiceModel.Security.X509CertificateValidationMode.Custom;
             channelFactory.Credentials.ServiceCertificate.Authentication.CustomCertificateValidator = new ClientCertValidator();
             channelFactory.Credentials.ServiceCertificate.Authentication.RevocationMode = X509RevocationMode.NoCheck;
@@ -61,25 +61,30 @@ namespace FileIntegrityMonitoringProject
                 {
                     string filename = element.Attribute("filename").Value;
 
-                    using (FileStream stream = File.OpenRead(Path.Combine(folderPath, filename)))
+                    byte[] data = File.ReadAllBytes(Path.Combine(folderPath, filename));
+                    if (!DigitalSignature.Verify(data, Convert.FromBase64String(element.Attribute("hash").Value), certificateSign))
                     {
-                        UnicodeEncoding encoding = new UnicodeEncoding();
-                        if (!DigitalSignature.Verify(stream, encoding.GetBytes(element.Attribute("hash").Value), null))
+                        int counter = int.Parse(element.Attribute("counter").Value);
+                        counter++;
+                        element.Attribute("counter").Value = counter.ToString();
+
+                        string hash = Convert.ToBase64String(DigitalSignature.Create(data, certificateSign));
+
+                        element.Attribute("hash").Value = hash;
+
+                        Console.WriteLine("\n-----------------------------------------------------");
+                        Console.WriteLine(filename + " - " + counter + " - " + hash);
+                        Console.WriteLine("-----------------------------------------------------");
+
+                        ConfigManager.GetInstance().UpdateEntry(filename, hash);
+                        Intrusion intrusion = new Intrusion()
                         {
-                            int counter = int.Parse(element.Attribute("counter").Value);
-                            counter++;
-                            element.Attribute("counter").Value = counter.ToString();
-
-                            string hash = DigitalSignature.Create(stream, certificateSign).ToString();
-                            
-                            element.Attribute("hash").Value = hash;
-
-                            Console.WriteLine("\n-----------------------------------------------------");
-                            Console.WriteLine(filename + " - " + counter);
-                            Console.WriteLine("-----------------------------------------------------");
-
-                            ips.LogIntrusion(DateTime.Now, filename, folderPath, (CompromiseLevel)counter);
-                        }
+                            TimeStamp = DateTime.Now,
+                            FileName = filename,
+                            Location = folderPath,
+                            CompromiseLevel = (CompromiseLevel)counter,
+                        };
+                        ips.LogIntrusion(intrusion);
                     }
                 }
                 ConfigManager.GetInstance().Save();
