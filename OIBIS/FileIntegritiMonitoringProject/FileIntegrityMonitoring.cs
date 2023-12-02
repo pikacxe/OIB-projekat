@@ -1,8 +1,13 @@
 ﻿using CertificationManager;
 using Common;
+using Newtonsoft.Json;
 using System;
+using System.ComponentModel;
 using System.Configuration;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization.Json;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Policy;
 using System.Security.Principal;
@@ -23,9 +28,12 @@ namespace FileIntegrityMonitoringProject
         private ChannelFactory<IIntrusionPreventionSystem> channelFactory;
         private bool cancelationToken;
         private X509Certificate2 certificateSign;
+        private string key;
 
         public FileIntegrityMonitoring()
         {
+            SymmetricAlgorithm symalg = TripleDESCryptoServiceProvider.Create();
+            key = Encoding.ASCII.GetString(symalg.Key);
             cancelationToken = false;
 
             /// cltCertCN.SubjectName should be set to the client's username. .NET WindowsIdentity class provides information about Windows user running the given process
@@ -84,7 +92,7 @@ namespace FileIntegrityMonitoringProject
                             Location = folderPath,
                             CompromiseLevel = (CompromiseLevel)counter,
                         };
-                        ips.LogIntrusion(intrusion);
+                        ips.LogIntrusion(TripleDesAlgorithm.Encrypt(intrusion,key), key);
                     }
                 }
                 ConfigManager.GetInstance().Save();
