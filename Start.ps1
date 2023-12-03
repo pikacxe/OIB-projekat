@@ -28,10 +28,10 @@ Run-ExeAsUser $client_exe
 #Run FM service
 Run-ExeAsUser $fm_exe
 
-# Run IPS service
-Run-ExeAsUser $ips_exe
-
 # Run FIM service
 Run-ExeAsUser $fim_exe
+
+# Run IPS service
+Run-ExeAsUser $ips_exe
 
 Write-Host "Services started successfully..." -F White -B DarkGreen

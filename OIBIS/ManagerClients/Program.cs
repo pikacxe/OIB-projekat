@@ -74,7 +74,7 @@ namespace ManagerClients
                 Console.WriteLine("Not implemented fully");
                 IFile f = proxy.ReadFile(filename);
                 byte[] data = f.File.ToArray();
-                ConsoleFileEditor editor = new ConsoleFileEditor(Encoding.ASCII.GetString(data).Split('\n'));
+                ConsoleFileEditor editor = new ConsoleFileEditor(Encoding.UTF8.GetString(data).Split('\n'));
                 editor.Edit();
                 f = editor.SaveToFile(f.Name);
                 proxy.UpdateFile(f, "");

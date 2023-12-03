@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography;
 using System.ServiceModel;
 
 namespace Common
@@ -8,6 +9,6 @@ namespace Common
     {
         [OperationContract]
         [FaultContract(typeof(CustomException))]
-        void LogIntrusion(Intrusion intrusion);
+        void LogIntrusion(string data, string secret_key);
     }
 }
