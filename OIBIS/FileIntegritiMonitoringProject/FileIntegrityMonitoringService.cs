@@ -35,6 +35,7 @@ namespace FileIntegrityMonitoringProject
                     string hash = Convert.ToBase64String(DigitalSignature.Create(file.File.ToArray(), certificateSign));
                     Console.WriteLine(hash);
                     ConfigManager.GetInstance().AddEntry(file.Name, hash);
+                    ConfigManager.GetInstance().Save();
                 }
             }
         }
@@ -67,6 +68,7 @@ namespace FileIntegrityMonitoringProject
             if (File.Exists(path))
             {
                 ConfigManager.GetInstance().RemoveEntry(fileName);
+                ConfigManager.GetInstance().Save();
                 File.Delete(path);
                 Console.WriteLine("File deleted");
             }
