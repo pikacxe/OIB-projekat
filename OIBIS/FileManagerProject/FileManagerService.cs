@@ -22,6 +22,7 @@ namespace FileManagerProject
                 channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
                 proxy = channel.CreateChannel();
                 proxy.AddFile(file);
+                Console.WriteLine($"File " + file.Name + " successfully added.");
             }
             catch(Exception e)
             {
@@ -39,7 +40,9 @@ namespace FileManagerProject
             {
                 channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
                 proxy = channel.CreateChannel();
-                return proxy.ReadFile(fileName);
+                var x = proxy.ReadFile(fileName);
+                Console.WriteLine($"File {fileName} was read successfully.");
+                return x;
             }
             catch (Exception e)
             {
@@ -58,7 +61,12 @@ namespace FileManagerProject
             {
                 channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
                 proxy = channel.CreateChannel();
-                return proxy.ReadFileNames();
+                var x = proxy.ReadFileNames();
+                foreach(var y in x)
+                {
+                    Console.WriteLine($"Filename {y} was read successfully.");
+                }
+                return x;
             }
             catch (Exception e)
             {
@@ -80,6 +88,7 @@ namespace FileManagerProject
                 channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
                 proxy = channel.CreateChannel();
                 proxy.RemoveFile(fileName);
+                Console.WriteLine($"Removal of {fileName} successfully requested.");
                 return true;
             }
             catch (Exception e)
@@ -90,7 +99,7 @@ namespace FileManagerProject
             {
                 channel.Close();
             }
-
+            Console.WriteLine($"Removal of {fileName} not successfully requested !");
             return false;
         }
         [OperationBehavior(AutoDisposeParameters = true)]
@@ -101,6 +110,7 @@ namespace FileManagerProject
                 channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
                 proxy = channel.CreateChannel();
                 proxy.UpdateFile(file);
+                Console.WriteLine($"File {file.Name} successfully updated.");
             }
             catch (Exception e)
             {
