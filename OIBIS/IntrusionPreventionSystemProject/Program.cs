@@ -4,6 +4,7 @@ using System;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
 using System.ServiceModel;
+using System.ServiceModel.Description;
 using System.ServiceModel.Security;
 
 namespace IntrusionPreventionSystemProject
@@ -24,7 +25,16 @@ namespace IntrusionPreventionSystemProject
             string address = "net.tcp://localhost:6002/IIntrusionPreventionSystem";
             ServiceHost host = new ServiceHost(typeof(IntrusionPreventionService));
             host.AddServiceEndpoint(typeof(IIntrusionPreventionSystem), binding, address);
+            ServiceSecurityAuditBehavior auditBehavior = new ServiceSecurityAuditBehavior();
 
+            auditBehavior.AuditLogLocation = AuditLogLocation.Application;
+            auditBehavior.ServiceAuthorizationAuditLevel = AuditLevel.SuccessOrFailure;
+
+            host.Description.Behaviors.Remove<ServiceSecurityAuditBehavior>();
+            host.Description.Behaviors.Add(auditBehavior);
+            
+
+           
             ///Custom validation mode enables creation of a custom validator - CustomCertificateValidator
             host.Credentials.ClientCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.Custom;
             host.Credentials.ClientCertificate.Authentication.CustomCertificateValidator = new ServiceCertValidator();
@@ -38,6 +48,7 @@ namespace IntrusionPreventionSystemProject
             try
             {
                 host.Open();
+               
                 Console.WriteLine("Intrusion prevention service started. Press Esc to exit...");
                 while (Console.ReadKey(intercept: true).Key != ConsoleKey.Escape) ;
             }
