@@ -11,7 +11,7 @@ namespace IntrusionPreventionSystemProject
     public class Audit:IDisposable
     {
         private static EventLog customLog = null;
-        const string SourceName = "ItrusionPreventionSystem.Audit";
+        const string SourceName = "IntrusionPreventionSystem.Audit";
         const string LogName = "IntrusionLog";
 
         static Audit()

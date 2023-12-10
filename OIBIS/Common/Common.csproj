@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompromiseLevel.cs" />
+    <Compile Include="CustomConsolePrint.cs" />
     <Compile Include="CustomException.cs" />
     <Compile Include="Impl\MonitoredFile.cs" />
     <Compile Include="Interfaces\IClient.cs" />

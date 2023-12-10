@@ -32,6 +32,7 @@ namespace FileIntegrityMonitoringProject
 
         public FileIntegrityMonitoring()
         {
+            /// Create private key
             SymmetricAlgorithm symalg = TripleDESCryptoServiceProvider.Create();
             key = Encoding.ASCII.GetString(symalg.Key);
             cancelationToken = false;
@@ -40,6 +41,12 @@ namespace FileIntegrityMonitoringProject
 			string cltCertCN = Formatter.ParseName(WindowsIdentity.GetCurrent().Name);
 
             certificateSign = CertManager.GetCertificateFromStorage(StoreName.My, StoreLocation.LocalMachine, signCertCN);
+
+            if(certificateSign == null)
+            {
+                CustomConsole.WriteLine("No certificate for signing found", MessageType.Error);
+                throw new Exception("No certificate for signing found");
+            }
 
             NetTcpBinding binding = new NetTcpBinding();
             binding.Security.Transport.ClientCredentialType = TcpClientCredentialType.Certificate;
@@ -64,7 +71,7 @@ namespace FileIntegrityMonitoringProject
             //proveravanje njihovih hash vrednosti
             do
             {
-                Console.WriteLine("Started scan...");
+                CustomConsole.WriteLine("Started scan...", MessageType.Info);
                 foreach (XElement element in ConfigManager.GetInstance().GetFiles)
                 {
                     string filename = element.Attribute("filename").Value;
@@ -73,18 +80,21 @@ namespace FileIntegrityMonitoringProject
                     if (!DigitalSignature.Verify(data, Convert.FromBase64String(element.Attribute("hash").Value), certificateSign))
                     {
                         int counter = int.Parse(element.Attribute("counter").Value);
-                        counter++;
+                        counter = counter + 1 > 3 ? 3 : counter + 1;
+
+                        CustomConsole.WriteLine("-----------------------------------------------------", MessageType.Warning);
+                        CustomConsole.WriteLine(filename + " - " + counter, MessageType.Warning);
+                        CustomConsole.WriteLine("-----------------------------------------------------", MessageType.Warning);
+
                         element.Attribute("counter").Value = counter.ToString();
 
                         string hash = Convert.ToBase64String(DigitalSignature.Create(data, certificateSign));
 
                         element.Attribute("hash").Value = hash;
 
-                        Console.WriteLine("\n-----------------------------------------------------");
-                        Console.WriteLine(filename + " - " + counter + " - " + hash);
-                        Console.WriteLine("-----------------------------------------------------");
 
                         ConfigManager.GetInstance().UpdateEntry(filename, hash);
+
                         Intrusion intrusion = new Intrusion()
                         {
                             TimeStamp = DateTime.Now,
@@ -92,11 +102,11 @@ namespace FileIntegrityMonitoringProject
                             Location = folderPath,
                             CompromiseLevel = (CompromiseLevel)counter,
                         };
-                        ips.LogIntrusion(TripleDesAlgorithm.Encrypt(intrusion,key), key);
+
+                        ips.LogIntrusion(TripleDesAlgorithm.Encrypt(intrusion, key), key);
                     }
                 }
-                ConfigManager.GetInstance().Save();
-                Console.WriteLine("Scan finished...");
+                CustomConsole.WriteLine("Scan finished...", MessageType.Info);
 
                 Thread.Sleep(monitoringPeriod);
             } while (!cancelationToken);

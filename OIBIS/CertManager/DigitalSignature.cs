@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
+﻿using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using Common;
-using System.IO;
 
 namespace CertificationManager
 {
@@ -20,7 +14,7 @@ namespace CertificationManager
 
             if (csp == null)
             {
-                Console.WriteLine("Valid certificate was not found.");
+                CustomConsole.WriteLine("Valid certificate was not found.",MessageType.Error);
             }
 
             byte[] hash = null;

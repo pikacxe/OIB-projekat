@@ -14,28 +14,33 @@ namespace FileIntegrityMonitoringProject
     public class FileIntegrityMonitoringService : IFileIntegrityService
     {
         string monitoredPath = ConfigurationManager.AppSettings["MonitoredPath"];
+        string signCertCN = ConfigurationManager.AppSettings["signCertCN"];
 
         [OperationBehavior(AutoDisposeParameters = true)]
         public void AddFile(IFile file)
         {
             if (File.Exists(Path.Combine(monitoredPath, file.Name)))
             {
-                Console.WriteLine("Fajl vec postoji");
+                CustomConsole.WriteLine($"File {file.Name} already exists", MessageType.Error);
+                throw new FaultException<CustomException>(new CustomException($"File {file.Name} already exists"));
             }
             else
             {
                 using (FileStream fs = File.Create(Path.Combine(monitoredPath, file.Name)))
                 {
                     file.File.WriteTo(fs);
-                    Console.WriteLine("File added");
-
-                    string signCertCN = "FIMCert";
                     X509Certificate2 certificateSign = CertManager.GetCertificateFromStorage(StoreName.My,
                     StoreLocation.LocalMachine, signCertCN);
+
+                    if (certificateSign == null)
+                    {
+                        throw new FaultException<CustomException>(new CustomException("No signature for signing was found!"));
+                    }
+
                     string hash = Convert.ToBase64String(DigitalSignature.Create(file.File.ToArray(), certificateSign));
-                    Console.WriteLine(hash);
+                    // Console.WriteLine(hash);
                     ConfigManager.GetInstance().AddEntry(file.Name, hash);
-                    ConfigManager.GetInstance().Save();
+                    CustomConsole.WriteLine($"File {file.Name} added", MessageType.Success);
                 }
             }
         }
@@ -47,19 +52,24 @@ namespace FileIntegrityMonitoringProject
             if (File.Exists(path))
             {
                 File.WriteAllBytes(path,file.File.ToArray());
-                string signCertCN = "FIMCert";
                 X509Certificate2 certificateSign = CertManager.GetCertificateFromStorage(StoreName.My,
                 StoreLocation.LocalMachine, signCertCN);
+
+                if (certificateSign == null)
+                {
+                    throw new FaultException<CustomException>(new CustomException("No signature for signing was found!"));
+                }
+
                 string hash = Convert.ToBase64String(DigitalSignature.Create(file.File.ToArray(), certificateSign));
 
-                ConfigManager.GetInstance().UpdateEntry(file.Name, hash);
-                ConfigManager.GetInstance().Save();
-                Console.WriteLine("File updated");
+                ConfigManager.GetInstance().UpdateEntry(file.Name, hash);   
+                CustomConsole.WriteLine($"File {file.Name} updated", MessageType.Success);
 
             }
             else
             {
-                Console.WriteLine($"Fajl {file.Name} ne postoji");
+                CustomConsole.WriteLine($"Fajl {file.Name} ne postoji", MessageType.Error);
+                throw new FaultException<CustomException>(new CustomException("Seleced file does not exist!"));
             }
         }
         public void RemoveFile(string fileName)
@@ -68,13 +78,14 @@ namespace FileIntegrityMonitoringProject
             if (File.Exists(path))
             {
                 ConfigManager.GetInstance().RemoveEntry(fileName);
-                ConfigManager.GetInstance().Save();
+                
                 File.Delete(path);
-                Console.WriteLine("File deleted");
+                CustomConsole.WriteLine($"File {fileName} deleted", MessageType.Success);
             }
             else
             {
-                Console.WriteLine("Fajl ne postoji");
+                CustomConsole.WriteLine($"Fajl {fileName} ne postoji", MessageType.Error);
+                throw new FaultException<CustomException>(new CustomException($"File {fileName} does not exist!"));
             }
         }
 
@@ -92,13 +103,13 @@ namespace FileIntegrityMonitoringProject
                 {
                     fs.CopyTo(mf.File);
                 }
-                Console.WriteLine("File sent");
+                CustomConsole.WriteLine($"File {fileName} forwarded", MessageType.Info);
                 return mf;
             }
             else
             {
-                Console.WriteLine("Fajl ne postoji");
-                return mf;
+                CustomConsole.WriteLine($"Fajl {fileName} ne postoji", MessageType.Error);
+                throw new FaultException<CustomException>(new CustomException($"File {fileName} does not exist!"));
             }
         }
 

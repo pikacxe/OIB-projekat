@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ServiceModel;
 using CertificationManager;
+using Common;
 
 namespace FileManagerProject
 {
@@ -13,7 +14,7 @@ namespace FileManagerProject
             using (ServiceHost host = new ServiceHost(typeof(FileManagerService)))
             {
                 host.Open();
-                Console.WriteLine("File manager service started. Press Esc to exit...");
+                CustomConsole.WriteLine("File manager service started. Press <Esc> to exit...", MessageType.Info);
                 while (Console.ReadKey().Key != ConsoleKey.Escape);
                 host.Close();
             }

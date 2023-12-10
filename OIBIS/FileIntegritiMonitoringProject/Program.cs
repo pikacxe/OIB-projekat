@@ -2,6 +2,7 @@
 using System.ServiceModel;
 using System.Threading.Tasks;
 using CertificationManager;
+using Common;
 
 namespace FileIntegrityMonitoringProject
 {
@@ -13,12 +14,25 @@ namespace FileIntegrityMonitoringProject
             Formatter.PrintCurrentUser();
             using (ServiceHost host = new ServiceHost(typeof(FileIntegrityMonitoringService)))
             {
-                Console.WriteLine("File integrity monitoring service started. Press Esc to exit...");
-                host.Open();
-                FileIntegrityMonitoring fim = new FileIntegrityMonitoring();
-                Task.Run(() => { while (Console.ReadKey(intercept: true).Key != ConsoleKey.Escape) ; fim.StopMonitoring(); });
-                fim.StartMonitoring();
-                host.Close();
+                try
+                {
+                    host.Open();
+                    CustomConsole.WriteLine("File integrity monitoring service started. Press <Esc> to exit...", MessageType.Info);
+                    FileIntegrityMonitoring fim = new FileIntegrityMonitoring();
+
+                    // Start task for terminating monitoring loop
+                    Task t = Task.Run(() => { while (Console.ReadKey(intercept: true).Key != ConsoleKey.Escape) ; fim.StopMonitoring(); });
+                    fim.StartMonitoring();
+                }
+                catch (Exception ex)
+                {
+                    CustomConsole.WriteLine(ex.Message, MessageType.Error);
+                }
+                finally
+                {
+                    host.Close();
+                }
+                Console.ReadKey(intercept:true);
             }
         }
     }
