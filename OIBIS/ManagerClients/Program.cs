@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.ServiceModel;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ManagerClients
 {
@@ -14,77 +15,122 @@ namespace ManagerClients
         private static IClient proxy;
         static void Main(string[] args)
         {
-            cf = new ChannelFactory<IClient>("Client");
-            proxy = cf.CreateChannel();
-            string key = string.Empty;
-            do
+            /// Create a client proxy
+            using (cf = new ChannelFactory<IClient>("Client"))
             {
-                // Print username of a user who is running a service
-                Formatter.PrintCurrentUser();
-                Console.Write("---------------------\nOptions:\n\tA - Add file\n\tU - update file\n\tQ - Quit process\n\nPick: ");
-                key = Console.ReadLine().ToUpper();
-                switch (key)
+
+                proxy = cf.CreateChannel();
+
+                /// User menu
+                string key = string.Empty;
+                do
                 {
-                    case "A": AddFile(); break;
-                    case "U": UpdateFile(); break;
-                    default: break;
+                    try
+                    {
+
+                        // Print username of a user who is running a service
+                        Formatter.PrintCurrentUser();
+                        Console.Write("---------------------\nOptions:\n\tA - Add file\n\tU - update file\n\tQ - Quit process\n\nPick: ");
+                        key = Console.ReadLine().ToUpper();
+                        switch (key)
+                        {
+                            case "A": AddFile(); break;
+                            case "U": UpdateFile(); break;
+                            default: break;
+                        }
+                    }
+                    catch (FaultException<CustomException> fe)
+                    {
+                        CustomConsole.WriteLine(fe.Detail.Message, MessageType.Error);
+                        cf = new ChannelFactory<IClient>("Client");
+                        proxy = cf.CreateChannel();
+                    }
+                    catch (Exception e)
+                    {
+                        CustomConsole.WriteLine(e.Message, MessageType.Error);
+                        cf = new ChannelFactory<IClient>("Client");
+                        proxy = cf.CreateChannel();
+                    }
+                } while (key != "Q");
+
+                /// Close channel on exit
+                if (cf != null)
+                {
+                    if (cf.State == CommunicationState.Faulted)
+                    {
+                        cf.Abort();
+                    }
+                    else
+                    {
+                        cf.Close();
+                    }
                 }
-            } while (key != "Q");
-            if(cf != null)
-            {
-                cf.Close();
             }
         }
 
         static void AddFile()
         {
-            try
+
+            Console.Write("Enter file name: ");
+            string filename = Console.ReadLine();
+            if (filename == "exit")
             {
-                Console.Write("Enter file name: ");
-                string filename = Console.ReadLine();
-                ConsoleFileEditor editor = new ConsoleFileEditor();
-                editor.Edit();
-                IFile file = editor.SaveToFile(filename);
-                Console.WriteLine($"{filename} created successfully...");
-                proxy.AddFile(file);
+                return;
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
+            /// Open empty file in console editor
+            ConsoleFileEditor editor = new ConsoleFileEditor();
+            editor.Edit();
+
+            /// Save data from console editor to file
+            IFile file = editor.SaveToFile(filename);
+            Console.WriteLine($"{filename} created successfully...");
+
+            /// forward file to service
+            proxy.AddFile(file);
         }
 
         static void UpdateFile()
         {
-            try
-            {
-                Console.WriteLine("--------------- Available files ---------------");
-                List<string> fileNames = proxy.ReadFiles();
-                foreach (var x in fileNames)
-                {
-                    Console.WriteLine($"- {x}");
-                }
-                string filename = string.Empty;
-                do
-                {
-                    Console.Write("\nSelect file: ");
-                    filename = Console.ReadLine();
-                } while (!fileNames.Contains(filename));
 
-                Console.WriteLine("Not implemented fully");
-                IFile f = proxy.ReadFile(filename);
-                byte[] data = f.File.ToArray();
-                ConsoleFileEditor editor = new ConsoleFileEditor(Encoding.UTF8.GetString(data).Split('\n'));
-                editor.Edit();
-                f = editor.SaveToFile(f.Name);
-                proxy.UpdateFile(f, "");
-                Console.WriteLine($"{filename} updated successfully...");
-                
-            }
-            catch (Exception e)
+            /// Read available files on service
+            Console.WriteLine("--------------- Available files ---------------");
+            List<string> fileNames = proxy.ReadFiles();
+            foreach (var x in fileNames)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine($"- {x}");
             }
+            string filename = string.Empty;
+
+            Regex r = new Regex(@".+\.[a-zA-Z]+$");
+            /// Select file for editing
+            do
+            {
+                Console.Write("\nSelect file: ");
+                filename = Console.ReadLine();
+                if (filename == "exit")
+                {
+                    return;
+                }
+                /// Add default extenstion if none is specified
+                if (!r.IsMatch(filename))
+                {
+                    filename += ".txt";
+                }
+            } while (!fileNames.Contains(filename));
+
+            /// Get file from service
+            IFile f = proxy.ReadFile(filename);
+
+            /// Read data from file in console editor
+            byte[] data = f.File.ToArray();
+            ConsoleFileEditor editor = new ConsoleFileEditor(Encoding.UTF8.GetString(data).Split('\n'));
+            editor.Edit();
+
+            /// Save updated file
+            f = editor.SaveToFile(f.Name);
+
+            /// Forward updated file to service
+            proxy.UpdateFile(f);
         }
     }
 }

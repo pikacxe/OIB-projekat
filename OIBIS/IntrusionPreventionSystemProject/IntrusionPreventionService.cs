@@ -28,24 +28,28 @@ namespace IntrusionPreventionSystemProject
             try
             {
                 Intrusion intrusion = TripleDesAlgorithm.Decrypt(data, secret_key);
-                Console.WriteLine($"[{intrusion.TimeStamp}] - Intrusion logged for file '{intrusion.FileName}' at '{intrusion.Location}'");
+                CustomConsole.WriteLine($"'{intrusion.TimeStamp}' - Intrusion level '{intrusion.CompromiseLevel}' logged for file '{intrusion.FileName}' at '{intrusion.Location}'",MessageType.Warning);
                 Audit.LogIntrusion(intrusion);
                 if (intrusion.CompromiseLevel == CompromiseLevel.Critical)
                 {
-                    Console.WriteLine("Requesting file removal...");
+                    CustomConsole.WriteLine("Requesting file removal...", MessageType.Info);
                     if (fileManager.RequestRemoval(intrusion.FileName))
                     {
-                        Console.WriteLine("File removed successfully");
+                        CustomConsole.WriteLine("File removed successfully", MessageType.Success);
                     }
                     else
                     {
-                        Console.WriteLine("File removal failed!");
+                        CustomConsole.WriteLine("File removal failed!", MessageType.Error);
                     }
                 }
             }
+            catch (FaultException<CustomException> fe)
+            {
+                CustomConsole.WriteLine(fe.Detail.Message, MessageType.Error);
+            }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                CustomConsole.WriteLine(e.Message, MessageType.Error);
             }
         }
     }

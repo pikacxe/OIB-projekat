@@ -49,13 +49,12 @@ namespace IntrusionPreventionSystemProject
             {
                 host.Open();
                
-                Console.WriteLine("Intrusion prevention service started. Press Esc to exit...");
+                CustomConsole.WriteLine("Intrusion prevention service started. Press Esc to exit...", MessageType.Info);
                 while (Console.ReadKey(intercept: true).Key != ConsoleKey.Escape) ;
             }
             catch (Exception e)
             {
-                Console.WriteLine("[ERROR] {0}", e.Message);
-                Console.WriteLine("[StackTrace] {0}", e.StackTrace);
+                CustomConsole.WriteLine(e.Message, MessageType.Error);
             }
             finally
             {

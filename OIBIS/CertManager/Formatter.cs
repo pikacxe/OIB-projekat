@@ -34,9 +34,10 @@ namespace CertificationManager
 
         public static void PrintCurrentUser()
         {
+            ConsoleColor old = Console.ForegroundColor; 
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine($"\nCurrently running as '{ParseName(WindowsIdentity.GetCurrent().Name)}'\n");
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.ForegroundColor = old;
         }
     }
 }

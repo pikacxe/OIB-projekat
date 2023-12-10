@@ -25,8 +25,10 @@ namespace FileIntegrityMonitoringProject
 
         static ConfigManager _instance;
         string folderPath = ConfigurationManager.AppSettings["MonitoredPath"];
-        private string configFile = "config.xml";
-        private XDocument xmlDocument = new XDocument(new XElement("files"));
+        string configFile = ConfigurationManager.AppSettings["ConfigFile"];
+        string signCertCN = ConfigurationManager.AppSettings["signCertCN"];
+
+        XDocument xmlDocument = new XDocument(new XElement("files"));
 
         public IEnumerable<XElement> GetFiles { get => xmlDocument.Root.Elements("file"); }
 
@@ -45,7 +47,6 @@ namespace FileIntegrityMonitoringProject
 
         //metoda za kreiranje pocetnog config fajla od predefinisanog
         //foldera sa fajlovima
-        //debuging purposes
         public void CreateConfig()
         {
             //sve fajlove pakujemo u xml config fajl
@@ -53,10 +54,10 @@ namespace FileIntegrityMonitoringProject
             {
                 string filename = Path.GetFileName(filePath);
 
-                string hash = "";
+                string hash = string.Empty;
                 byte[] data = File.ReadAllBytes(Path.Combine(folderPath, filename));
 
-                string signCertCN = "FIMCert";
+                
                 X509Certificate2 certificateSign = CertManager.GetCertificateFromStorage(StoreName.My,
                 StoreLocation.LocalMachine, signCertCN);
                 hash = Convert.ToBase64String(DigitalSignature.Create(data, certificateSign));
@@ -81,21 +82,19 @@ namespace FileIntegrityMonitoringProject
                 new XAttribute("hash", checksum),
                 new XAttribute("counter", 0));
             xmlDocument.Root.Add(fileElement);
+            xmlDocument.Save(configFile);
         }
 
         public void UpdateEntry(string fileName, string checksum)
         {
             XElement element = GetFiles.FirstOrDefault(elem => elem.Attribute("filename").Value == fileName);
             element.Attribute("hash").Value = checksum;
+            xmlDocument.Save(configFile);
         }
 
         public void RemoveEntry(string fileName)
         {
             GetFiles.FirstOrDefault(elem => elem.Attribute("filename").Value == fileName).Remove();
-        }
-
-        public void Save()
-        {
             xmlDocument.Save(configFile);
         }
 

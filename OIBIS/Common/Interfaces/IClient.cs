@@ -17,7 +17,7 @@ namespace Common
 
         [OperationContract]
         [FaultContract(typeof(CustomException))]
-        void UpdateFile(IFile file, string old_filename);
+        void UpdateFile(IFile file);
 
         [OperationContract]
         [FaultContract(typeof(CustomException))]

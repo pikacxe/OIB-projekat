@@ -22,15 +22,28 @@ namespace FileManagerProject
                 channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
                 proxy = channel.CreateChannel();
                 proxy.AddFile(file);
-                Console.WriteLine($"File " + file.Name + " successfully added.");
+                CustomConsole.WriteLine($"File " + file.Name + " successfully added.", MessageType.Success);
             }
-            catch(Exception e)
+            catch (FaultException<CustomException> fe)
             {
-                Console.WriteLine(e.Message);
+                CustomConsole.WriteLine(fe.Detail.Message, MessageType.Error);
+                throw fe;
+            }
+            catch (Exception e)
+            {
+                CustomConsole.WriteLine(e.Message, MessageType.Error);
             }
             finally
             {
-                channel.Close();
+                // Ensure the channel is properly closed
+                if (channel.State == CommunicationState.Faulted)
+                {
+                    channel.Abort();
+                }
+                else
+                {
+                    channel.Close();
+                }
             }
         }
 
@@ -41,16 +54,29 @@ namespace FileManagerProject
                 channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
                 proxy = channel.CreateChannel();
                 var x = proxy.ReadFile(fileName);
-                Console.WriteLine($"File {fileName} was read successfully.");
+                CustomConsole.WriteLine($"File {fileName} was read successfully.", MessageType.Success);
                 return x;
+            }
+            catch (FaultException<CustomException> fe)
+            {
+                CustomConsole.WriteLine(fe.Detail.Message, MessageType.Error);
+                throw fe;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                CustomConsole.WriteLine(e.Message, MessageType.Error);
             }
             finally
             {
-                channel.Close();
+                // Ensure the channel is properly closed
+                if (channel.State == CommunicationState.Faulted)
+                {
+                    channel.Abort();
+                }
+                else
+                {
+                    channel.Close();
+                }
             }
             return new MonitoredFile();
         }
@@ -62,19 +88,31 @@ namespace FileManagerProject
                 channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
                 proxy = channel.CreateChannel();
                 var x = proxy.ReadFileNames();
-                foreach(var y in x)
-                {
-                    Console.WriteLine($"Filename {y} was read successfully.");
-                }
+
+                CustomConsole.WriteLine($"Read {x.Count} files from service.", MessageType.Success);
+
                 return x;
+            }
+            catch (FaultException<CustomException> fe)
+            {
+                CustomConsole.WriteLine(fe.Detail.Message, MessageType.Error);
+                throw fe;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                CustomConsole.WriteLine(e.Message, MessageType.Error);
             }
             finally
             {
-                channel.Close();
+                // Ensure the channel is properly closed
+                if (channel.State == CommunicationState.Faulted)
+                {
+                    channel.Abort();
+                }
+                else
+                {
+                    channel.Close();
+                }
             }
 
             return Enumerable.Empty<string>().ToList();
@@ -88,37 +126,63 @@ namespace FileManagerProject
                 channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
                 proxy = channel.CreateChannel();
                 proxy.RemoveFile(fileName);
-                Console.WriteLine($"Removal of {fileName} successfully requested.");
+                CustomConsole.WriteLine($"Removal of {fileName} successfully requested.", MessageType.Success);
                 return true;
+            }
+            catch (FaultException<CustomException> fe)
+            {
+                CustomConsole.WriteLine(fe.Detail.Message, MessageType.Error);
+                throw fe;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                CustomConsole.WriteLine(e.Message, MessageType.Error);
             }
             finally
             {
-                channel.Close();
+                // Ensure the channel is properly closed
+                if (channel.State == CommunicationState.Faulted)
+                {
+                    channel.Abort();
+                }
+                else
+                {
+                    channel.Close();
+                }
             }
-            Console.WriteLine($"Removal of {fileName} not successfully requested !");
+            CustomConsole.WriteLine($"Removal of {fileName} not successfully requested !", MessageType.Warning);
             return false;
         }
         [OperationBehavior(AutoDisposeParameters = true)]
-        public void UpdateFile(IFile file, string old_filename)
+        public void UpdateFile(IFile file)
         {
             try
             {
                 channel = new ChannelFactory<IFileIntegrityService>("IFileMonitoring");
                 proxy = channel.CreateChannel();
                 proxy.UpdateFile(file);
-                Console.WriteLine($"File {file.Name} successfully updated.");
+                CustomConsole.WriteLine($"File {file.Name} successfully updated.", MessageType.Success);
+            }
+            catch (FaultException<CustomException> fe)
+            {
+                CustomConsole.WriteLine(fe.Detail.Message, MessageType.Error);
+                throw fe;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                CustomConsole.WriteLine(e.Message, MessageType.Error);
             }
             finally
             {
-                channel.Close();
+                // Ensure the channel is properly closed
+                if (channel.State == CommunicationState.Faulted)
+                {
+                    channel.Abort();
+                }
+                else
+                {
+                    channel.Close();
+                }
             }
         }
     }

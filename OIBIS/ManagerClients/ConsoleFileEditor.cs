@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace ManagerClients
@@ -151,13 +152,20 @@ namespace ManagerClients
             MonitoredFile mf = new MonitoredFile();
             mf.Name = fileName;
             mf.Hash = string.Empty;
-            StreamWriter sw = new StreamWriter(mf.File);
+
+            StreamWriter sw = new StreamWriter(mf.File, Encoding.UTF8);
             sw.AutoFlush = true;
+            sw.NewLine = "\n";
+
             foreach (var x in lines)
             {
-                sw.Write(x.ToString());
+                sw.WriteLine(x.ToString());
             }
             return mf;
+
+
         }
     }
 }
+
+
