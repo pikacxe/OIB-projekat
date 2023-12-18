@@ -21,8 +21,9 @@ namespace FileIntegrityMonitoringProject
         {
             if (File.Exists(Path.Combine(monitoredPath, file.Name)))
             {
-                CustomConsole.WriteLine($"File {file.Name} already exists", MessageType.Error);
-                throw new FaultException<CustomException>(new CustomException($"File {file.Name} already exists"));
+                string message = $"File {file.Name} already exists";
+                CustomConsole.WriteLine(message, MessageType.Error);
+                throw new FaultException<CustomException>(new CustomException(message),message);
             }
             else
             {
@@ -68,8 +69,9 @@ namespace FileIntegrityMonitoringProject
             }
             else
             {
-                CustomConsole.WriteLine($"Fajl {file.Name} ne postoji", MessageType.Error);
-                throw new FaultException<CustomException>(new CustomException("Seleced file does not exist!"));
+                string message = $"File {file.Name} does not exist";
+                CustomConsole.WriteLine(message, MessageType.Error);
+                throw new FaultException<CustomException>(new CustomException(message),message);
             }
         }
         public void RemoveFile(string fileName)
@@ -84,8 +86,9 @@ namespace FileIntegrityMonitoringProject
             }
             else
             {
-                CustomConsole.WriteLine($"Fajl {fileName} ne postoji", MessageType.Error);
-                throw new FaultException<CustomException>(new CustomException($"File {fileName} does not exist!"));
+                string message = $"File {fileName} does not exist";
+                CustomConsole.WriteLine(message, MessageType.Error);
+                throw new FaultException<CustomException>(new CustomException(message), message);
             }
         }
 
@@ -108,8 +111,9 @@ namespace FileIntegrityMonitoringProject
             }
             else
             {
-                CustomConsole.WriteLine($"Fajl {fileName} ne postoji", MessageType.Error);
-                throw new FaultException<CustomException>(new CustomException($"File {fileName} does not exist!"));
+                string message = $"File {fileName} does not exists";
+                CustomConsole.WriteLine(message, MessageType.Error);
+                throw new FaultException<CustomException>(new CustomException(message),message);
             }
         }
 
