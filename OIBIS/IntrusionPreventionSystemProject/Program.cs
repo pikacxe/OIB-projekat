@@ -1,6 +1,7 @@
 ﻿using CertificationManager;
 using Common;
 using System;
+using System.Configuration;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
 using System.ServiceModel;
@@ -22,7 +23,7 @@ namespace IntrusionPreventionSystemProject
             NetTcpBinding binding = new NetTcpBinding();
             binding.Security.Transport.ClientCredentialType = TcpClientCredentialType.Certificate;
 
-            string address = "net.tcp://localhost:6002/IIntrusionPreventionSystem";
+            string address = ConfigurationManager.AppSettings["serviceAddress"];
             ServiceHost host = new ServiceHost(typeof(IntrusionPreventionService));
             host.AddServiceEndpoint(typeof(IIntrusionPreventionSystem), binding, address);
             ServiceSecurityAuditBehavior auditBehavior = new ServiceSecurityAuditBehavior();

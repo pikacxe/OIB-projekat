@@ -19,8 +19,8 @@ namespace CertificationManager
 
             byte[] hash = null;
 
-            SHA1Managed sha256 = new SHA1Managed();
-            hash = sha256.ComputeHash(data);
+            SHA1Managed sha1 = new SHA1Managed();
+            hash = sha1.ComputeHash(data);
             
 
             byte[] signature = csp.SignHash(hash, HashAlgorithmName.SHA1.ToString());
@@ -35,8 +35,8 @@ namespace CertificationManager
 
             byte[] hash = null;
 
-            SHA1Managed sha256 = new SHA1Managed();
-            hash = sha256.ComputeHash(data);
+            SHA1Managed sha1 = new SHA1Managed();
+            hash = sha1.ComputeHash(data);
 
             return csp.VerifyHash(hash, HashAlgorithmName.SHA1.ToString(), signature);
         }

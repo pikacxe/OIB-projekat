@@ -1,10 +1,6 @@
 ﻿using Common;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IntrusionPreventionSystemProject
 {
@@ -34,8 +30,6 @@ namespace IntrusionPreventionSystemProject
 
         public static void LogIntrusion(Intrusion intrusion)
         {
-            //TO DO
-
             if (customLog != null)
             {
                 string message = $"[{intrusion.TimeStamp}] [{intrusion.CompromiseLevel.ToString()}] - Intrusion logged for file '{intrusion.FileName}' at '{intrusion.Location}'";

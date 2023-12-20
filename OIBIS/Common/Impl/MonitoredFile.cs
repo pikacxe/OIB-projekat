@@ -36,6 +36,7 @@ namespace Common
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
                 // TODO: set large fields to null
+                file = null;
                 disposedValue = true;
             }
         }

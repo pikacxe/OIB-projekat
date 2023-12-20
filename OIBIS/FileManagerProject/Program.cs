@@ -13,10 +13,17 @@ namespace FileManagerProject
             Formatter.PrintCurrentUser();
             using (ServiceHost host = new ServiceHost(typeof(FileManagerService)))
             {
-                host.Open();
-                CustomConsole.WriteLine("File manager service started. Press <Esc> to exit...", MessageType.Info);
-                while (Console.ReadKey().Key != ConsoleKey.Escape);
-                host.Close();
+                try
+                {
+                    host.Open();
+                    CustomConsole.WriteLine("File manager service started. Press <Esc> to exit...", MessageType.Info);
+                    while (Console.ReadKey().Key != ConsoleKey.Escape) ;
+                    host.Close();
+                }
+                catch (Exception ex)
+                {
+                    CustomConsole.WriteLine(ex.Message, MessageType.Error);
+                }
             }
         }
     }

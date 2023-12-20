@@ -1,13 +1,6 @@
 ﻿using Common;
-using Newtonsoft.Json;
 using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Security.Cryptography;
 using System.ServiceModel;
-using System.Text;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 namespace IntrusionPreventionSystemProject
 {
@@ -21,7 +14,7 @@ namespace IntrusionPreventionSystemProject
             cf = new ChannelFactory<IFileManager>("IFileManager");
             fileManager = cf.CreateChannel();
         }
-
+        
 
         public void LogIntrusion(string data, string secret_key)
         {
@@ -45,7 +38,7 @@ namespace IntrusionPreventionSystemProject
             }
             catch (FaultException<CustomException> fe)
             {
-                CustomConsole.WriteLine(fe.Detail.Message, MessageType.Error);
+                CustomConsole.WriteLine(fe.Detail.FaultMessage, MessageType.Error);
             }
             catch (Exception e)
             {
