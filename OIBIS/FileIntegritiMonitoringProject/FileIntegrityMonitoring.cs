@@ -1,15 +1,10 @@
 ﻿using CertificationManager;
 using Common;
-using Newtonsoft.Json;
 using System;
-using System.ComponentModel;
 using System.Configuration;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Runtime.Serialization.Json;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using System.Security.Policy;
 using System.Security.Principal;
 using System.ServiceModel;
 using System.Text;
@@ -24,9 +19,9 @@ namespace FileIntegrityMonitoringProject
         int monitoringPeriod = int.Parse(ConfigurationManager.AppSettings["MonitoringPeriod"]);
         string srvCertCN = ConfigurationManager.AppSettings["srvCertCN"];
         string signCertCN = ConfigurationManager.AppSettings["signCertCN"];
+        string ipsAddress = ConfigurationManager.AppSettings["ipsAddress"];
         private IIntrusionPreventionSystem ips;
         private ChannelFactory<IIntrusionPreventionSystem> channelFactory;
-        private bool cancelationToken;
         private X509Certificate2 certificateSign;
         private string key;
 
@@ -35,7 +30,6 @@ namespace FileIntegrityMonitoringProject
             /// Create private key
             SymmetricAlgorithm symalg = TripleDESCryptoServiceProvider.Create();
             key = Encoding.ASCII.GetString(symalg.Key);
-            cancelationToken = false;
 
             /// cltCertCN.SubjectName should be set to the client's username. .NET WindowsIdentity class provides information about Windows user running the given process
 			string cltCertCN = Formatter.ParseName(WindowsIdentity.GetCurrent().Name);
@@ -53,7 +47,7 @@ namespace FileIntegrityMonitoringProject
 
             /// Use CertManager class to obtain the certificate based on the "srvCertCN" representing the expected service identity.
             X509Certificate2 srvCert = CertManager.GetCertificateFromStorage(StoreName.TrustedPeople, StoreLocation.LocalMachine, srvCertCN);
-            EndpointAddress address = new EndpointAddress(new Uri("net.tcp://localhost:6002/IIntrusionPreventionSystem"),
+            EndpointAddress address = new EndpointAddress(new Uri(ipsAddress),
                                       new X509CertificateEndpointIdentity(srvCert));
             channelFactory = new ChannelFactory<IIntrusionPreventionSystem>(binding, address);
             channelFactory.Credentials.ServiceCertificate.Authentication.CertificateValidationMode = System.ServiceModel.Security.X509CertificateValidationMode.Custom;
@@ -71,6 +65,14 @@ namespace FileIntegrityMonitoringProject
             //proveravanje njihovih hash vrednosti
             do
             {
+                /// Exit logic
+                if (Console.KeyAvailable)
+                {
+                    if(Console.ReadKey(intercept:true).Key == ConsoleKey.Escape)
+                    {
+                        break;
+                    }
+                }
                 CustomConsole.WriteLine("Started scan...", MessageType.Info);
                 foreach (XElement element in ConfigManager.GetInstance().GetFiles)
                 {
@@ -109,12 +111,7 @@ namespace FileIntegrityMonitoringProject
                 CustomConsole.WriteLine("Scan finished...", MessageType.Info);
 
                 Thread.Sleep(monitoringPeriod);
-            } while (!cancelationToken);
-        }
-
-        public void StopMonitoring()
-        {
-            cancelationToken = false;
+            } while (true);
         }
     }
 }

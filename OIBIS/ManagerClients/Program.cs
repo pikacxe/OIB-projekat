@@ -2,7 +2,6 @@
 using Common;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.ServiceModel;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -15,19 +14,17 @@ namespace ManagerClients
         private static IClient proxy;
         static void Main(string[] args)
         {
-            /// Create a client proxy
-            using (cf = new ChannelFactory<IClient>("Client"))
+            try
             {
-
+                /// Create a client proxy
+                cf = new ChannelFactory<IClient>("Client");
                 proxy = cf.CreateChannel();
-
                 /// User menu
                 string key = string.Empty;
                 do
                 {
                     try
                     {
-
                         // Print username of a user who is running a service
                         Formatter.PrintCurrentUser();
                         Console.Write("---------------------\nOptions:\n\tA - Add file\n\tU - update file\n\tQ - Quit process\n\nPick: ");
@@ -41,18 +38,30 @@ namespace ManagerClients
                     }
                     catch (FaultException<CustomException> fe)
                     {
-                        CustomConsole.WriteLine(fe.Detail.Message, MessageType.Error);
-                        cf = new ChannelFactory<IClient>("Client");
-                        proxy = cf.CreateChannel();
+                        CustomConsole.WriteLine(fe.Detail.FaultMessage, MessageType.Error);
+                        if (cf.State == CommunicationState.Faulted)
+                        {
+                            cf = new ChannelFactory<IClient>("Client");
+                            proxy = cf.CreateChannel();
+                        }
                     }
                     catch (Exception e)
                     {
                         CustomConsole.WriteLine(e.Message, MessageType.Error);
-                        cf = new ChannelFactory<IClient>("Client");
-                        proxy = cf.CreateChannel();
+                        if (cf.State == CommunicationState.Faulted)
+                        {
+                            cf = new ChannelFactory<IClient>("Client");
+                            proxy = cf.CreateChannel();
+                        }
                     }
                 } while (key != "Q");
-
+            }
+            catch (Exception e)
+            {
+                CustomConsole.WriteLine(e.Message, MessageType.Error);
+            }
+            finally
+            {
                 /// Close channel on exit
                 if (cf != null)
                 {
@@ -66,6 +75,7 @@ namespace ManagerClients
                     }
                 }
             }
+
         }
 
         static void AddFile()

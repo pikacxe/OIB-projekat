@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Security.Permissions;
 using System.ServiceModel;
 
@@ -26,7 +25,7 @@ namespace FileManagerProject
             }
             catch (FaultException<CustomException> fe)
             {
-                CustomConsole.WriteLine(fe.Detail.Message, MessageType.Error);
+                CustomConsole.WriteLine(fe.Detail.FaultMessage, MessageType.Error);
                 throw fe;
             }
             catch (Exception e)
@@ -47,6 +46,7 @@ namespace FileManagerProject
             }
         }
 
+        [PrincipalPermission(SecurityAction.Demand, Role = "OIBIS_Management")]
         public IFile ReadFile(string fileName)
         {
             try
@@ -59,7 +59,7 @@ namespace FileManagerProject
             }
             catch (FaultException<CustomException> fe)
             {
-                CustomConsole.WriteLine(fe.Detail.Message, MessageType.Error);
+                CustomConsole.WriteLine(fe.Detail.FaultMessage, MessageType.Error);
                 throw fe;
             }
             catch (Exception e)
@@ -81,6 +81,7 @@ namespace FileManagerProject
             return new MonitoredFile();
         }
 
+        [PrincipalPermission(SecurityAction.Demand, Role = "OIBIS_Management")]
         public List<string> ReadFiles()
         {
             try
@@ -95,7 +96,7 @@ namespace FileManagerProject
             }
             catch (FaultException<CustomException> fe)
             {
-                CustomConsole.WriteLine(fe.Detail.Message, MessageType.Error);
+                CustomConsole.WriteLine(fe.Detail.FaultMessage, MessageType.Error);
                 throw fe;
             }
             catch (Exception e)
@@ -131,7 +132,7 @@ namespace FileManagerProject
             }
             catch (FaultException<CustomException> fe)
             {
-                CustomConsole.WriteLine(fe.Detail.Message, MessageType.Error);
+                CustomConsole.WriteLine(fe.Detail.FaultMessage, MessageType.Error);
                 throw fe;
             }
             catch (Exception e)
@@ -153,6 +154,8 @@ namespace FileManagerProject
             CustomConsole.WriteLine($"Removal of {fileName} not successfully requested !", MessageType.Warning);
             return false;
         }
+
+        [PrincipalPermission(SecurityAction.Demand, Role = "OIBIS_Management")]
         [OperationBehavior(AutoDisposeParameters = true)]
         public void UpdateFile(IFile file)
         {
@@ -165,7 +168,7 @@ namespace FileManagerProject
             }
             catch (FaultException<CustomException> fe)
             {
-                CustomConsole.WriteLine(fe.Detail.Message, MessageType.Error);
+                CustomConsole.WriteLine(fe.Detail.FaultMessage, MessageType.Error);
                 throw fe;
             }
             catch (Exception e)

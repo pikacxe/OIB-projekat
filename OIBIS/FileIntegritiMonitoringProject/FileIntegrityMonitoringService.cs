@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
-using System.Runtime.InteropServices.ComTypes;
 using System.Security.Cryptography.X509Certificates;
-using System.Security.Policy;
 using System.ServiceModel;
 using CertificationManager;
 using Common;
@@ -23,7 +21,7 @@ namespace FileIntegrityMonitoringProject
             {
                 string message = $"File {file.Name} already exists";
                 CustomConsole.WriteLine(message, MessageType.Error);
-                throw new FaultException<CustomException>(new CustomException(message),message);
+                throw new FaultException<CustomException>(new CustomException { FaultMessage = message},message);
             }
             else
             {
@@ -35,7 +33,7 @@ namespace FileIntegrityMonitoringProject
 
                     if (certificateSign == null)
                     {
-                        throw new FaultException<CustomException>(new CustomException("No signature for signing was found!"));
+                        throw new FaultException<CustomException>(new CustomException{ FaultMessage = "No signature for signing was found!" });
                     }
 
                     string hash = Convert.ToBase64String(DigitalSignature.Create(file.File.ToArray(), certificateSign));
@@ -58,7 +56,7 @@ namespace FileIntegrityMonitoringProject
 
                 if (certificateSign == null)
                 {
-                    throw new FaultException<CustomException>(new CustomException("No signature for signing was found!"));
+                    throw new FaultException<CustomException>(new CustomException { FaultMessage = "No signature for signing was found!" });
                 }
 
                 string hash = Convert.ToBase64String(DigitalSignature.Create(file.File.ToArray(), certificateSign));
@@ -71,7 +69,7 @@ namespace FileIntegrityMonitoringProject
             {
                 string message = $"File {file.Name} does not exist";
                 CustomConsole.WriteLine(message, MessageType.Error);
-                throw new FaultException<CustomException>(new CustomException(message),message);
+                throw new FaultException<CustomException>(new CustomException { FaultMessage = message},message);
             }
         }
         public void RemoveFile(string fileName)
@@ -88,7 +86,7 @@ namespace FileIntegrityMonitoringProject
             {
                 string message = $"File {fileName} does not exist";
                 CustomConsole.WriteLine(message, MessageType.Error);
-                throw new FaultException<CustomException>(new CustomException(message), message);
+                throw new FaultException<CustomException>(new CustomException { FaultMessage = message}, message);
             }
         }
 
@@ -113,7 +111,7 @@ namespace FileIntegrityMonitoringProject
             {
                 string message = $"File {fileName} does not exists";
                 CustomConsole.WriteLine(message, MessageType.Error);
-                throw new FaultException<CustomException>(new CustomException(message),message);
+                throw new FaultException<CustomException>(new CustomException { FaultMessage = message},message);
             }
         }
 

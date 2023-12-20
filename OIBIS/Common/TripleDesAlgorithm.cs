@@ -1,11 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Common
 {
@@ -47,7 +44,7 @@ namespace Common
                 {
                     // Read the decrypted JSON string and convert it back to an Intrusion object
                     string jsonString = streamReader.ReadToEnd();
-                    return Newtonsoft.Json.JsonConvert.DeserializeObject<Intrusion>(jsonString);
+                    return JsonConvert.DeserializeObject<Intrusion>(jsonString);
                 }
             }
         }

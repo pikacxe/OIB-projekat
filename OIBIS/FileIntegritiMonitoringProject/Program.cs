@@ -20,8 +20,6 @@ namespace FileIntegrityMonitoringProject
                     CustomConsole.WriteLine("File integrity monitoring service started. Press <Esc> to exit...", MessageType.Info);
                     FileIntegrityMonitoring fim = new FileIntegrityMonitoring();
 
-                    // Start task for terminating monitoring loop
-                    Task t = Task.Run(() => { while (Console.ReadKey(intercept: true).Key != ConsoleKey.Escape) ; fim.StopMonitoring(); });
                     fim.StartMonitoring();
                 }
                 catch (Exception ex)
@@ -32,7 +30,7 @@ namespace FileIntegrityMonitoringProject
                 {
                     host.Close();
                 }
-                Console.ReadKey(intercept:true);
+                Console.ReadKey(intercept: true);
             }
         }
     }

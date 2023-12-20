@@ -1,6 +1,4 @@
-﻿using System;
-using System.Security.Cryptography;
-using System.ServiceModel;
+﻿using System.ServiceModel;
 
 namespace Common
 {
