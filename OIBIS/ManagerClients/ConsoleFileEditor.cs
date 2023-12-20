@@ -153,17 +153,26 @@ namespace ManagerClients
             mf.Name = fileName;
             mf.Hash = string.Empty;
 
-            StreamWriter sw = new StreamWriter(mf.File, Encoding.UTF8);
-            sw.AutoFlush = true;
-            sw.NewLine = "\n";
-
-            foreach (var x in lines)
+            using (MemoryStream ms = new MemoryStream())
             {
-                sw.WriteLine(x.ToString());
+                using (StreamWriter sw = new StreamWriter(ms,new UTF8Encoding(false)))
+                {
+                    sw.AutoFlush = true;
+                    sw.NewLine = "\n";
+
+                    foreach (var x in lines)
+                    {
+                        sw.WriteLine(x.ToString());
+                    }
+
+                    // Get the byte array from the MemoryStream
+                    byte[] data = ms.ToArray();
+
+                    // Create a new MemoryStream with the actual data
+                    mf.File = new MemoryStream(data);
+                }
             }
             return mf;
-
-
         }
     }
 }
