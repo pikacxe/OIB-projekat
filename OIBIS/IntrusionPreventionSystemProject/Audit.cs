@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace IntrusionPreventionSystemProject
 {
-    public class Audit:IDisposable
+    public class Audit : IDisposable
     {
         private static EventLog customLog = null;
         const string SourceName = "IntrusionPreventionSystem.Audit";
@@ -33,7 +33,19 @@ namespace IntrusionPreventionSystemProject
             if (customLog != null)
             {
                 string message = $"[{intrusion.TimeStamp}] [{intrusion.CompromiseLevel.ToString()}] - Intrusion logged for file '{intrusion.FileName}' at '{intrusion.Location}'";
-                customLog.WriteEntry(message);
+                if (intrusion.CompromiseLevel == CompromiseLevel.Info)
+                {
+
+                    customLog.WriteEntry(message, EventLogEntryType.Information);
+                }
+                else if (intrusion.CompromiseLevel == CompromiseLevel.Warning)
+                {
+                    customLog.WriteEntry(message, EventLogEntryType.Warning);
+                }
+                else
+                {
+                    customLog.WriteEntry(message, EventLogEntryType.Error);
+                }
             }
             else
             {
