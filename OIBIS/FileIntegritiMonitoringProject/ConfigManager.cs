@@ -100,20 +100,5 @@ namespace FileIntegrityMonitoringProject
         {
             return GetFiles.FirstOrDefault(elem => elem.Attribute("filename").Value == fileName);
         }
-
-        //Funkcija za racunanje checksum koristeci SHA1
-        //debuging purposes
-        public String CalculateChecksum(string fileName)
-        {
-            byte[] checksum;
-            using (var stream = File.OpenRead(Path.Combine(folderPath, fileName)))
-            {
-                SHA1 sha1 = new SHA1CryptoServiceProvider();
-                checksum = sha1.ComputeHash(stream);
-            }
-
-            //iz niza bajtova pretvaramo u string
-            return BitConverter.ToString(checksum).Replace("-", string.Empty);
-        }
     }
 }
